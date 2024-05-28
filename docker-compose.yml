@@ -1,0 +1,50 @@
+version: '3.3'
+
+networks:
+  app-network:
+
+volumes:
+  mongodb-data:
+
+services:
+  symfony_app:
+    build:
+      context: .
+      dockerfile: ./infrastructure/php/Dockerfile
+    networks:
+      - app-network
+    volumes:
+      - .:/var/task
+      - ./var:/var/task/var        # force create ./var
+      - ./vendor:/var/task/vendor  # force create ./vendor
+    depends_on:
+      - mongodb
+    env_file:
+      - .env
+      - .env.local
+
+  nginx:
+    image: nginx:1.23.4-alpine
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/task
+      - ./infrastructure/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - symfony_app
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - type: volume
+        source: mongodb-data
+        target: /data/db
+    ports:
+      - "27019:27017"
+    networks:
+      - app-network
+    env_file:
+      - .env
+      - .env.local
