@@ -1,0 +1,11 @@
+# Run Symfony command  every hour
+0 * * * * php /var/www/html/bin/console app:pawns:create --env=prod
+
+# Run Symfony command  every hour and two minutes past the hour
+2 * * * * php /var/www/html/bin/console app:pawns:update --env=prod
+
+# Run Symfony command  every hour and four minutes past the hour
+4 * * * * php /var/www/html/bin/console app:geonode --env=prod
+
+# Run Symfony command  every hour and six minutes past the hour
+# 6 * * * *  get_ips.sh --env=prod
