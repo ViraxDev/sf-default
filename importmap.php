@@ -16,10 +16,6 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
-    'login' => [
-        'path' => './assets/login.js',
-        'entrypoint' => true,
-    ],
     'anchor-js' => [
         'version' => '5.0.0',
     ],
@@ -58,5 +54,8 @@ return [
     'bootstrap/dist/css/bootstrap.min.css' => [
         'version' => '5.3.3',
         'type' => 'css',
+    ],
+    '@hotwired/stimulus' => [
+        'version' => '3.2.2',
     ],
 ];
