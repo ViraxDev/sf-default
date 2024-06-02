@@ -4495,7 +4495,7 @@ var toastInit = function toastInit() {
 var tooltipInit = function tooltipInit() {
   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new window.bootstrap.Tooltip(tooltipTriggerEl, {
+    return new window.Tooltip(tooltipTriggerEl, {
       trigger: 'hover'
     });
   });

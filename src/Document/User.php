@@ -24,6 +24,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[MongoDB\Field(type: 'string')]
     private string $password;
 
+    #[MongoDB\Field(type: 'string')]
+    private ?string $firstName;
+
+    #[MongoDB\Field(type: 'string')]
+    private ?string $lastName;
+
     public function getId(): ?string
     {
         return $this->id;
@@ -92,5 +98,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(?string $firstName): self
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(?string $lastName): self
+    {
+        $this->lastName = $lastName;
+
+        return $this;
     }
 }

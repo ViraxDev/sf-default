@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} Mon compte{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-3 btn-reveal-trigger">
+                <div class="card-header position-relative min-vh-25 mb-8">
+                    <div class="cover-image">
+                        <div class="bg-holder rounded-3 rounded-bottom-0" style="background-image:url({{ asset('theme/img/generic/4.jpg') }});">
+                        </div>
+                        <!--/.bg-holder-->
+
+                        <input class="d-none" id="upload-cover-image" type="file" />
+                        <label class="cover-image-file-input" for="upload-cover-image"><span class="fas fa-camera me-2"></span><span>Changer la photo de couverture</span></label>
+                    </div>
+                    <div class="avatar avatar-5xl avatar-profile shadow-sm img-thumbnail rounded-circle">
+                        <div class="h-100 w-100 rounded-circle overflow-hidden position-relative"> <img src="{{ asset('theme/img/team/avatar.png') }}" width="200" alt="" data-dz-thumbnail="data-dz-thumbnail" />
+                            <input class="d-none" id="profile-image" type="file" />
+                            <label class="mb-0 overlay-icon d-flex flex-center" for="profile-image"><span class="bg-holder overlay overlay-0"></span><span class="z-1 text-white dark__text-white text-center fs--1"><span class="fas fa-camera"></span><span class="d-block">Mettre à jour</span></span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Mon compte</h5>
+                </div>
+                <div class="card-body bg-light">
+                    {% set extra_class = formSubmitted ? ' was-validated' : '' %}
+                    {{ form_start(form, {'attr': {'class': 'row g-3 needs-validation' ~ extra_class}}) }}
+                        <div class="col-lg-6">
+                            {{ form_label(form.firstName, null, {
+                                'label': 'Prénom',
+                                'class': 'form-label'
+                            }) }}
+
+                            {{ form_widget(form.firstName, {'attr': {'class': 'form-control', 'value': field_value(form.firstName)}}) }}
+                        </div>
+                        <div class="col-lg-6">
+                            {{ form_label(form.lastName, null, {
+                                'label': 'Nom',
+                                'class': 'form-label'
+                            }) }}
+
+                            {{ form_widget(form.lastName, {'attr': {'class': 'form-control', 'value': field_value(form.lastName)}}) }}
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                {{ form_label(form.email, null, {
+                                    'label': 'Email',
+                                    'class': 'form-label'
+                                }) }}
+
+                                {{ form_widget(form.email, {'attr': {'class': 'form-control', 'value': field_value(form.email)}}) }}
+                            </div>
+                        </div>
+                        <div class="col-lg-6 position-relative">
+                            {{ form_label(form.password.first, null, {
+                                'label': 'Mot de passe',
+                                'class': 'form-label'
+                            }) }}
+
+                            {{ form_widget(form.password.first, {'attr': {'class': 'form-control', 'value': field_value(form.password.first)}}) }}
+
+                            {% for error in field_errors(form.password.first) %}
+                                <div class="invalid-tooltip">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-lg-6">
+                            {{ form_label(form.password.second, null, {
+                                'label': 'Répétez le mot de passe',
+                                'class': 'form-label'
+                            }) }}
+
+                            {{ form_widget(form.password.second, {'attr': {'class': 'form-control', 'value': field_value(form.password.second)}}) }}
+
+                            {% for error in field_errors(form.password.second) %}
+                                <div class="invalid-tooltip">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button class="btn btn-primary" type="submit">Mettre à jour</button>
+                        </div>
+
+                    {{ form_errors(form) }}
+
+                    {{ form_rest(form) }}
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

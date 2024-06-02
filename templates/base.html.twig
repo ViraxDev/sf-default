@@ -1,17 +1,73 @@
 <!DOCTYPE html>
-<html lang="{{ app.request.locale }}">
+<html data-bs-theme="light" lang="{{ app.request.locale }}" dir="ltr">
     <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
+
+        <!-- ===============================================-->
+        <!--    Document Title-->
+        <!-- ===============================================-->
+        <title>
+            {% block title %}Falcon | {% endblock %}
+        </title>
+
+        <!-- ===============================================-->
+        <!--    Favicons-->
+        <!-- ===============================================-->
+        <meta name="theme-color" content="#ffffff">
+
+
+        <!-- ===============================================-->
+        <!--    Stylesheets-->
+        <!-- ===============================================-->
+
+        {% block stylesheets %}
+            <link rel="preconnect" href="https://fonts.gstatic.com">
+            <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap" rel="stylesheet">
         {% endblock %}
     </head>
+
     <body>
-        {% block body %}{% endblock %}
+        <!-- ===============================================-->
+        <!--    Main Content-->
+        <!-- ===============================================-->
+        <main class="main" id="top">
+        <div class="container" data-layout="container">
+            <script>
+                var isFluid = JSON.parse(localStorage.getItem('isFluid'));
+                if (isFluid) {
+                    var container = document.querySelector('[data-layout]');
+                    container.classList.remove('container');
+                    container.classList.add('container-fluid');
+                }
+            </script>
+
+            {% include 'includes/_navbar.html.twig' %}
+
+            <div class="content">
+
+                {% include 'includes/_menu.html.twig' %}
+
+                {% block body %}{% endblock %}
+
+                {% include 'includes/_footer.html.twig' %}
+            </div>
+        </div>
+    </main>
+        <!-- ===============================================-->
+        <!--    End of Main Content-->
+        <!-- ===============================================-->
+
+
+        <!-- ===============================================-->
+        <!--    JavaScripts-->
+        <!-- ===============================================-->
+
+        {% block javascripts %}
+            <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+            {{ importmap('app') }}
+        {% endblock %}
     </body>
 </html>
