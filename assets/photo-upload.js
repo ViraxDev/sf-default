@@ -19,6 +19,8 @@ function onPhotoChange(elements) {
                 formData.append('photo', file);
                 formData.append('property', $(this).data('property'));
 
+                $('#top').addClass('opacity-50 disabled');
+
                 $.ajax({
                     url: $(this).data('path-upload'),
                     type: "POST",
@@ -28,9 +30,13 @@ function onPhotoChange(elements) {
                     dataType: 'html',
                     success: function (data) {
                         let picturesBloc = $(data).find('#pictures-bloc');
+                        let miniAvatar = $(data).find('#mini-avatar');
                         $('#pictures-bloc').replaceWith(picturesBloc);
+                        $('#mini-avatar').replaceWith(miniAvatar);
 
                         init();
+
+                        $('#top').removeClass('opacity-50 disabled');
                     }
                 });
             }

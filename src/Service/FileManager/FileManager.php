@@ -5,7 +5,6 @@ namespace App\Service\FileManager;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final readonly class FileManager implements FileManagerInterface
@@ -24,10 +23,7 @@ final readonly class FileManager implements FileManagerInterface
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $fileName = $originalFilename. '-'. uniqid() . '.' . $file->guessExtension();
 
-        try {
-            $file->move($this->uploadDirectory, $fileName);
-        } catch (FileException $e) {
-        }
+        $file->move($this->uploadDirectory, $fileName);
 
         return $fileName;
     }
