@@ -16,7 +16,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
     name: 'app:user:update',
-    description: 'Create a user with an appropriate role',
+    description: 'Update a user',
 )]
 final class UpdateCommand extends Command
 {
