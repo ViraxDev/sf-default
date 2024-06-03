@@ -15,6 +15,7 @@ import('./theme/vendors/fontawesome/all.min.js');
 import _ from 'lodash';
 import('./theme/vendors/list.js/list.min.js');
 import('./theme/theme.js');
+import('./photo-upload.js')
 
 window.Toast = Toast;
 window.Tooltip = Tooltip;
@@ -22,16 +23,16 @@ window.AnchorJS = AnchorJS;
 window.is = is;
 window._ = _;
 
-var isRTL = JSON.parse(localStorage.getItem('isRTL'));
+let isRTL = JSON.parse(localStorage.getItem('isRTL'));
 if (isRTL) {
-    var linkDefault = document.getElementById('style-default');
-    var userLinkDefault = document.getElementById('user-style-default');
+    let linkDefault = document.getElementById('style-default');
+    let userLinkDefault = document.getElementById('user-style-default');
     linkDefault.setAttribute('disabled', true);
     userLinkDefault.setAttribute('disabled', true);
     document.querySelector('html').setAttribute('dir', 'rtl');
 } else {
-    var linkRTL = document.getElementById('style-rtl');
-    var userLinkRTL = document.getElementById('user-style-rtl');
+    let linkRTL = document.getElementById('style-rtl');
+    let userLinkRTL = document.getElementById('user-style-rtl');
 
     if (linkRTL !== null) {
         linkRTL.setAttribute('disabled', true);

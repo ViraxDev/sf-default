@@ -16,7 +16,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[MongoDB\Field(type: 'string')]
     #[MongoDB\UniqueIndex()]
-    private ?string $email;
+    private ?string $email = null;
 
     #[MongoDB\Field(type: 'collection')]
     private array $roles = [];
@@ -25,10 +25,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password;
 
     #[MongoDB\Field(type: 'string')]
-    private ?string $firstName;
+    private ?string $firstName = null;
 
     #[MongoDB\Field(type: 'string')]
-    private ?string $lastName;
+    private ?string $lastName = null;
+
+    #[MongoDB\Field(type: 'string')]
+    private ?string $pictureProfile = null;
+
+    #[MongoDB\Field(type: 'string')]
+    private ?string $coverPictureProfile = null;
 
     public function getId(): ?string
     {
@@ -120,6 +126,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastName(?string $lastName): self
     {
         $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getPictureProfile(): ?string
+    {
+        return $this->pictureProfile;
+    }
+
+    public function setPictureProfile(?string $pictureProfile): self
+    {
+        $this->pictureProfile = $pictureProfile;
+
+        return $this;
+    }
+
+    public function getCoverPictureProfile(): ?string
+    {
+        return $this->coverPictureProfile;
+    }
+
+    public function setCoverPictureProfile(?string $coverPictureProfile): self
+    {
+        $this->coverPictureProfile = $coverPictureProfile;
 
         return $this;
     }
