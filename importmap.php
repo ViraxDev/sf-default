@@ -58,4 +58,7 @@ return [
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],
+    'jquery' => [
+        'version' => '3.7.1',
+    ],
 ];

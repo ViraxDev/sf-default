@@ -6,18 +6,29 @@
     <div class="row">
         <div class="col-12">
             <div class="card mb-3 btn-reveal-trigger">
-                <div class="card-header position-relative min-vh-25 mb-8">
+                <div id="pictures-bloc" class="card-header position-relative min-vh-25 mb-8">
+                    {% set pictureProfile = 'theme/img/team/avatar.png' %}
+                    {% set coverPictureProfile = 'theme/img/generic/4.jpg' %}
+
+                    {% if app.user.pictureProfile %}
+                        {% set pictureProfile = 'img/uploads/' ~ app.user.pictureProfile %}
+                    {% endif %}
+
+                    {% if app.user.coverPictureProfile %}
+                        {% set coverPictureProfile = 'img/uploads/' ~ app.user.coverPictureProfile %}
+                    {% endif %}
+
                     <div class="cover-image">
-                        <div class="bg-holder rounded-3 rounded-bottom-0" style="background-image:url({{ asset('theme/img/generic/4.jpg') }});">
+                        <div class="bg-holder rounded-3 rounded-bottom-0" style="background-image:url({{ asset(coverPictureProfile) }});">
                         </div>
                         <!--/.bg-holder-->
 
-                        <input class="d-none" id="upload-cover-image" type="file" />
+                        <input data-property="coverPictureProfile" data-path-upload="{{ path('app_picture_update') }}" class="d-none" id="upload-cover-image" type="file" />
                         <label class="cover-image-file-input" for="upload-cover-image"><span class="fas fa-camera me-2"></span><span>Changer la photo de couverture</span></label>
                     </div>
                     <div class="avatar avatar-5xl avatar-profile shadow-sm img-thumbnail rounded-circle">
-                        <div class="h-100 w-100 rounded-circle overflow-hidden position-relative"> <img src="{{ asset('theme/img/team/avatar.png') }}" width="200" alt="" data-dz-thumbnail="data-dz-thumbnail" />
-                            <input class="d-none" id="profile-image" type="file" />
+                        <div class="h-100 w-100 rounded-circle overflow-hidden position-relative"> <img src="{{ asset(pictureProfile) }}" width="200" alt="" data-dz-thumbnail="data-dz-thumbnail" />
+                            <input data-property="pictureProfile" data-path-upload="{{ path('app_picture_update') }}" class="d-none" id="profile-image" type="file" accept="image/*"/>
                             <label class="mb-0 overlay-icon d-flex flex-center" for="profile-image"><span class="bg-holder overlay overlay-0"></span><span class="z-1 text-white dark__text-white text-center fs--1"><span class="fas fa-camera"></span><span class="d-block">Mettre à jour</span></span></label>
                         </div>
                     </div>
