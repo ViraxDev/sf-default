@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Twig\Runtime;
+namespace App\Twig\Runtime\User;
 
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Extension\RuntimeExtensionInterface;
 
-final readonly class UserExtensionRuntime implements RuntimeExtensionInterface
+final readonly class ExtensionRuntime implements RuntimeExtensionInterface
 {
     public function __construct(
         private Security $security,
