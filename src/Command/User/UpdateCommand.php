@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Command\User;
 
-use App\Document\User;
+use App\Entity\User;
 use App\Enum\UserRoleEnum;
-use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,7 +20,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 )]
 final class UpdateCommand extends Command
 {
-    public function __construct(private readonly DocumentManager $documentManager, private readonly UserPasswordHasherInterface $passwordHasher)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly UserPasswordHasherInterface $passwordHasher)
     {
         parent::__construct();
     }
@@ -48,7 +48,7 @@ final class UpdateCommand extends Command
         }
 
         /** @var User $user */
-        if (!($user = $this->documentManager->getRepository(User::class)->findOneBy(compact('email')))) {
+        if (!($user = $this->entityManager->getRepository(User::class)->findOneBy(compact('email')))) {
             $io->error(sprintf('The user %s doesn\'t exist.', $email));
 
             return Command::FAILURE;
@@ -62,7 +62,7 @@ final class UpdateCommand extends Command
             $user->setRoles([$role]);
         }
 
-        $this->documentManager->flush();
+        $this->entityManager->flush();
 
         $io->success(sprintf('User %s updated successfully', $email));
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "62b29a6aad15687bf5f4036a547cf1e3",
+    "content-hash": "5363d876aa51be7e443f0c1d6210ff16",
     "packages": [
         {
             "name": "composer/semver",
@@ -422,6 +422,218 @@
             "time": "2024-01-30T19:34:25+00:00"
         },
         {
+            "name": "doctrine/doctrine-bundle",
+            "version": "2.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doctrine/DoctrineBundle.git",
+                "reference": "5418e811a14724068e95e0ba43353b903ada530f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/doctrine/DoctrineBundle/zipball/5418e811a14724068e95e0ba43353b903ada530f",
+                "reference": "5418e811a14724068e95e0ba43353b903ada530f",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/cache": "^1.11 || ^2.0",
+                "doctrine/dbal": "^3.7.0 || ^4.0",
+                "doctrine/persistence": "^2.2 || ^3",
+                "doctrine/sql-formatter": "^1.0.1",
+                "php": "^7.4 || ^8.0",
+                "symfony/cache": "^5.4 || ^6.0 || ^7.0",
+                "symfony/config": "^5.4 || ^6.0 || ^7.0",
+                "symfony/console": "^5.4 || ^6.0 || ^7.0",
+                "symfony/dependency-injection": "^5.4 || ^6.0 || ^7.0",
+                "symfony/deprecation-contracts": "^2.1 || ^3",
+                "symfony/doctrine-bridge": "^5.4.19 || ^6.0.7 || ^7.0",
+                "symfony/framework-bundle": "^5.4 || ^6.0 || ^7.0",
+                "symfony/polyfill-php80": "^1.15",
+                "symfony/service-contracts": "^1.1.1 || ^2.0 || ^3"
+            },
+            "conflict": {
+                "doctrine/annotations": ">=3.0",
+                "doctrine/orm": "<2.17 || >=4.0",
+                "twig/twig": "<1.34 || >=2.0 <2.4"
+            },
+            "require-dev": {
+                "doctrine/annotations": "^1 || ^2",
+                "doctrine/coding-standard": "^12",
+                "doctrine/deprecations": "^1.0",
+                "doctrine/orm": "^2.17 || ^3.0",
+                "friendsofphp/proxy-manager-lts": "^1.0",
+                "phpunit/phpunit": "^9.5.26",
+                "psalm/plugin-phpunit": "^0.18.4",
+                "psalm/plugin-symfony": "^5",
+                "psr/log": "^1.1.4 || ^2.0 || ^3.0",
+                "symfony/phpunit-bridge": "^6.1 || ^7.0",
+                "symfony/property-info": "^5.4 || ^6.0 || ^7.0",
+                "symfony/proxy-manager-bridge": "^5.4 || ^6.0 || ^7.0",
+                "symfony/security-bundle": "^5.4 || ^6.0 || ^7.0",
+                "symfony/stopwatch": "^5.4 || ^6.0 || ^7.0",
+                "symfony/string": "^5.4 || ^6.0 || ^7.0",
+                "symfony/twig-bridge": "^5.4 || ^6.0 || ^7.0",
+                "symfony/validator": "^5.4 || ^6.0 || ^7.0",
+                "symfony/var-exporter": "^5.4 || ^6.2 || ^7.0",
+                "symfony/web-profiler-bundle": "^5.4 || ^6.0 || ^7.0",
+                "symfony/yaml": "^5.4 || ^6.0 || ^7.0",
+                "twig/twig": "^1.34 || ^2.12 || ^3.0",
+                "vimeo/psalm": "^5.15"
+            },
+            "suggest": {
+                "doctrine/orm": "The Doctrine ORM integration is optional in the bundle.",
+                "ext-pdo": "*",
+                "symfony/web-profiler-bundle": "To use the data collector."
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Doctrine\\Bundle\\DoctrineBundle\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Benjamin Eberlei",
+                    "email": "kontakt@beberlei.de"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                },
+                {
+                    "name": "Doctrine Project",
+                    "homepage": "https://www.doctrine-project.org/"
+                }
+            ],
+            "description": "Symfony DoctrineBundle",
+            "homepage": "https://www.doctrine-project.org",
+            "keywords": [
+                "database",
+                "dbal",
+                "orm",
+                "persistence"
+            ],
+            "support": {
+                "issues": "https://github.com/doctrine/DoctrineBundle/issues",
+                "source": "https://github.com/doctrine/DoctrineBundle/tree/2.12.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.doctrine-project.org/sponsorship.html",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://www.patreon.com/phpdoctrine",
+                    "type": "patreon"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/doctrine%2Fdoctrine-bundle",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-03-19T07:20:37+00:00"
+        },
+        {
+            "name": "doctrine/doctrine-migrations-bundle",
+            "version": "3.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doctrine/DoctrineMigrationsBundle.git",
+                "reference": "715b62c31a5894afcb2b2cdbbc6607d7dd0580c0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/doctrine/DoctrineMigrationsBundle/zipball/715b62c31a5894afcb2b2cdbbc6607d7dd0580c0",
+                "reference": "715b62c31a5894afcb2b2cdbbc6607d7dd0580c0",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/doctrine-bundle": "^2.4",
+                "doctrine/migrations": "^3.2",
+                "php": "^7.2|^8.0",
+                "symfony/deprecation-contracts": "^2.1 || ^3",
+                "symfony/framework-bundle": "^5.4 || ^6.0 || ^7.0"
+            },
+            "require-dev": {
+                "composer/semver": "^3.0",
+                "doctrine/coding-standard": "^12",
+                "doctrine/orm": "^2.6 || ^3",
+                "doctrine/persistence": "^2.0 || ^3 ",
+                "phpstan/phpstan": "^1.4",
+                "phpstan/phpstan-deprecation-rules": "^1",
+                "phpstan/phpstan-phpunit": "^1",
+                "phpstan/phpstan-strict-rules": "^1.1",
+                "phpstan/phpstan-symfony": "^1.3",
+                "phpunit/phpunit": "^8.5|^9.5",
+                "psalm/plugin-phpunit": "^0.18.4",
+                "psalm/plugin-symfony": "^3 || ^5",
+                "symfony/phpunit-bridge": "^6.3 || ^7",
+                "symfony/var-exporter": "^5.4 || ^6 || ^7",
+                "vimeo/psalm": "^4.30 || ^5.15"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Doctrine\\Bundle\\MigrationsBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Doctrine Project",
+                    "homepage": "https://www.doctrine-project.org"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony DoctrineMigrationsBundle",
+            "homepage": "https://www.doctrine-project.org",
+            "keywords": [
+                "dbal",
+                "migrations",
+                "schema"
+            ],
+            "support": {
+                "issues": "https://github.com/doctrine/DoctrineMigrationsBundle/issues",
+                "source": "https://github.com/doctrine/DoctrineMigrationsBundle/tree/3.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.doctrine-project.org/sponsorship.html",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://www.patreon.com/phpdoctrine",
+                    "type": "patreon"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/doctrine%2Fdoctrine-migrations-bundle",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-05-14T20:32:18+00:00"
+        },
+        {
             "name": "doctrine/event-manager",
             "version": "2.0.1",
             "source": {
@@ -751,59 +963,60 @@
             "time": "2024-02-05T11:56:58+00:00"
         },
         {
-            "name": "doctrine/mongodb-odm",
-            "version": "2.7.0",
+            "name": "doctrine/migrations",
+            "version": "3.7.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/doctrine/mongodb-odm.git",
-                "reference": "8c7fa3f31c0018571f9c841b9212811df44ded96"
+                "url": "https://github.com/doctrine/migrations.git",
+                "reference": "954e0a314c2f0eb9fb418210445111747de254a6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/8c7fa3f31c0018571f9c841b9212811df44ded96",
-                "reference": "8c7fa3f31c0018571f9c841b9212811df44ded96",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/954e0a314c2f0eb9fb418210445111747de254a6",
+                "reference": "954e0a314c2f0eb9fb418210445111747de254a6",
                 "shasum": ""
             },
             "require": {
-                "doctrine/cache": "^1.11 || ^2.0",
-                "doctrine/collections": "^1.5 || ^2.0",
-                "doctrine/event-manager": "^1.0 || ^2.0",
-                "doctrine/instantiator": "^1.1 || ^2",
-                "doctrine/persistence": "^3.2",
-                "ext-mongodb": "^1.11",
-                "friendsofphp/proxy-manager-lts": "^1.0",
-                "jean85/pretty-package-versions": "^1.3.0 || ^2.0.1",
-                "mongodb/mongodb": "^1.10.0",
+                "composer-runtime-api": "^2",
+                "doctrine/dbal": "^3.5.1 || ^4",
+                "doctrine/deprecations": "^0.5.3 || ^1",
+                "doctrine/event-manager": "^1.2 || ^2.0",
                 "php": "^8.1",
-                "psr/cache": "^1.0 || ^2.0 || ^3.0",
+                "psr/log": "^1.1.3 || ^2 || ^3",
                 "symfony/console": "^5.4 || ^6.0 || ^7.0",
-                "symfony/deprecation-contracts": "^2.2 || ^3.0",
-                "symfony/var-dumper": "^5.4 || ^6.0 || ^7.0"
+                "symfony/stopwatch": "^5.4 || ^6.0 || ^7.0",
+                "symfony/var-exporter": "^6.2 || ^7.0"
             },
             "conflict": {
-                "doctrine/annotations": "<1.12 || >=3.0"
+                "doctrine/orm": "<2.12 || >=4"
             },
             "require-dev": {
-                "doctrine/annotations": "^1.12 || ^2.0",
-                "doctrine/coding-standard": "^12.0",
-                "ext-bcmath": "*",
-                "jmikola/geojson": "^1.0",
-                "phpbench/phpbench": "^1.0.0",
-                "phpstan/phpstan": "^1.10.11",
-                "phpstan/phpstan-phpunit": "^1.0",
-                "phpunit/phpunit": "^10.4",
-                "squizlabs/php_codesniffer": "^3.5",
+                "doctrine/coding-standard": "^12",
+                "doctrine/orm": "^2.13 || ^3",
+                "doctrine/persistence": "^2 || ^3",
+                "doctrine/sql-formatter": "^1.0",
+                "ext-pdo_sqlite": "*",
+                "phpstan/phpstan": "^1.10",
+                "phpstan/phpstan-deprecation-rules": "^1.1",
+                "phpstan/phpstan-phpunit": "^1.3",
+                "phpstan/phpstan-strict-rules": "^1.4",
+                "phpstan/phpstan-symfony": "^1.3",
+                "phpunit/phpunit": "^10.3",
                 "symfony/cache": "^5.4 || ^6.0 || ^7.0",
-                "vimeo/psalm": "^5.9.0"
+                "symfony/process": "^5.4 || ^6.0 || ^7.0",
+                "symfony/yaml": "^5.4 || ^6.0 || ^7.0"
             },
             "suggest": {
-                "doctrine/annotations": "For annotation mapping support",
-                "ext-bcmath": "Decimal128 type support"
+                "doctrine/sql-formatter": "Allows to generate formatted SQL with the diff command.",
+                "symfony/yaml": "Allows the use of yaml for migration configuration files."
             },
+            "bin": [
+                "bin/doctrine-migrations"
+            ],
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Doctrine\\ODM\\MongoDB\\": "lib/Doctrine/ODM/MongoDB"
+                    "Doctrine\\Migrations\\": "lib/Doctrine/Migrations"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -812,40 +1025,28 @@
             ],
             "authors": [
                 {
-                    "name": "Jeremy Mikola",
-                    "email": "jmikola@gmail.com"
+                    "name": "Benjamin Eberlei",
+                    "email": "kontakt@beberlei.de"
                 },
                 {
-                    "name": "Maciej Malarz",
-                    "email": "malarzm@gmail.com"
+                    "name": "Jonathan Wage",
+                    "email": "jonwage@gmail.com"
                 },
                 {
-                    "name": "Andreas Braun",
-                    "email": "alcaeus@alcaeus.org"
-                },
-                {
-                    "name": "Ion Bazan",
-                    "email": "ion.bazan@gmail.com"
-                },
-                {
-                    "name": "Fran Moreno",
-                    "email": "franmomu@gmail.com"
+                    "name": "Michael Simonson",
+                    "email": "contact@mikesimonson.com"
                 }
             ],
-            "description": "PHP Doctrine MongoDB Object Document Mapper (ODM) provides transparent persistence for PHP objects to MongoDB.",
-            "homepage": "https://www.doctrine-project.org/projects/mongodb-odm.html",
+            "description": "PHP Doctrine Migrations project offer additional functionality on top of the database abstraction layer (DBAL) for versioning your database schema and easily deploying changes to it. It is a very easy to use and a powerful tool.",
+            "homepage": "https://www.doctrine-project.org/projects/migrations.html",
             "keywords": [
-                "data",
-                "mapper",
-                "mapping",
-                "mongodb",
-                "object",
-                "odm",
-                "php"
+                "database",
+                "dbal",
+                "migrations"
             ],
             "support": {
-                "issues": "https://github.com/doctrine/mongodb-odm/issues",
-                "source": "https://github.com/doctrine/mongodb-odm/tree/2.7.0"
+                "issues": "https://github.com/doctrine/migrations/issues",
+                "source": "https://github.com/doctrine/migrations/tree/3.7.4"
             },
             "funding": [
                 {
@@ -857,97 +1058,11 @@
                     "type": "patreon"
                 },
                 {
-                    "url": "https://tidelift.com/funding/github/packagist/doctrine%2Fmongodb-odm",
+                    "url": "https://tidelift.com/funding/github/packagist/doctrine%2Fmigrations",
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-06T14:24:19+00:00"
-        },
-        {
-            "name": "doctrine/mongodb-odm-bundle",
-            "version": "5.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/DoctrineMongoDBBundle.git",
-                "reference": "4d8d32b726e7af21a562a2b6a227f0496c7d39d5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineMongoDBBundle/zipball/4d8d32b726e7af21a562a2b6a227f0496c7d39d5",
-                "reference": "4d8d32b726e7af21a562a2b6a227f0496c7d39d5",
-                "shasum": ""
-            },
-            "require": {
-                "composer-runtime-api": "^2.0",
-                "doctrine/mongodb-odm": "^2.6",
-                "doctrine/persistence": "^3.0",
-                "ext-mongodb": "^1.5",
-                "php": "^8.1",
-                "psr/log": "^1.0 || ^2.0 || ^3.0",
-                "symfony/config": "^6.4 || ^7.0",
-                "symfony/console": "^6.4 || ^7.0",
-                "symfony/dependency-injection": "^6.4 || ^7.0",
-                "symfony/doctrine-bridge": "^6.4 || ^7.0",
-                "symfony/framework-bundle": "^6.4 || ^7.0",
-                "symfony/http-kernel": "^6.4 || ^7.0",
-                "symfony/options-resolver": "^6.4 || ^7.0"
-            },
-            "conflict": {
-                "doctrine/data-fixtures": "<1.3"
-            },
-            "require-dev": {
-                "doctrine/coding-standard": "^11.0",
-                "doctrine/data-fixtures": "^1.7",
-                "phpunit/phpunit": "^9.5.5",
-                "psalm/plugin-symfony": "^5.0",
-                "symfony/browser-kit": "^6.4 || ^7.0",
-                "symfony/form": "^6.4 || ^7.0",
-                "symfony/phpunit-bridge": "^6.4.1 || ^7.0.1",
-                "symfony/security-bundle": "^6.4 || ^7.0",
-                "symfony/stopwatch": "^6.4 || ^7.0",
-                "symfony/validator": "^6.4 || ^7.0",
-                "symfony/yaml": "^6.4 || ^7.0",
-                "vimeo/psalm": "^5.12"
-            },
-            "suggest": {
-                "doctrine/data-fixtures": "Load data fixtures"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Doctrine\\Bundle\\MongoDBBundle\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Bulat Shakirzyanov",
-                    "email": "mallluhuct@gmail.com"
-                },
-                {
-                    "name": "Kris Wallsmith",
-                    "email": "kris@symfony.com"
-                },
-                {
-                    "name": "Jonathan H. Wage",
-                    "email": "jonwage@gmail.com"
-                }
-            ],
-            "description": "Symfony Doctrine MongoDB Bundle",
-            "homepage": "http://www.doctrine-project.org",
-            "keywords": [
-                "mongodb",
-                "persistence",
-                "symfony"
-            ],
-            "support": {
-                "issues": "https://github.com/doctrine/DoctrineMongoDBBundle/issues",
-                "source": "https://github.com/doctrine/DoctrineMongoDBBundle/tree/5.0.1"
-            },
-            "time": "2024-01-16T11:03:11+00:00"
+            "time": "2024-03-06T13:41:11+00:00"
         },
         {
             "name": "doctrine/orm",
@@ -1136,45 +1251,35 @@
             "time": "2024-03-12T14:54:36+00:00"
         },
         {
-            "name": "friendsofphp/proxy-manager-lts",
-            "version": "v1.0.18",
+            "name": "doctrine/sql-formatter",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/FriendsOfPHP/proxy-manager-lts.git",
-                "reference": "2c8a6cffc3220e99352ad958fe7cf06bf6f7690f"
+                "url": "https://github.com/doctrine/sql-formatter.git",
+                "reference": "d1ac84aef745c69ea034929eb6d65a6908b675cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/proxy-manager-lts/zipball/2c8a6cffc3220e99352ad958fe7cf06bf6f7690f",
-                "reference": "2c8a6cffc3220e99352ad958fe7cf06bf6f7690f",
+                "url": "https://api.github.com/repos/doctrine/sql-formatter/zipball/d1ac84aef745c69ea034929eb6d65a6908b675cc",
+                "reference": "d1ac84aef745c69ea034929eb6d65a6908b675cc",
                 "shasum": ""
             },
             "require": {
-                "laminas/laminas-code": "~3.4.1|^4.0",
-                "php": ">=7.1",
-                "symfony/filesystem": "^4.4.17|^5.0|^6.0|^7.0"
-            },
-            "conflict": {
-                "laminas/laminas-stdlib": "<3.2.1",
-                "zendframework/zend-stdlib": "<3.2.1"
-            },
-            "replace": {
-                "ocramius/proxy-manager": "^2.1"
+                "php": "^8.1"
             },
             "require-dev": {
-                "ext-phar": "*",
-                "symfony/phpunit-bridge": "^5.4|^6.0|^7.0"
+                "doctrine/coding-standard": "^12",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^10.5",
+                "vimeo/psalm": "^5.24"
             },
+            "bin": [
+                "bin/sql-formatter"
+            ],
             "type": "library",
-            "extra": {
-                "thanks": {
-                    "name": "ocramius/proxy-manager",
-                    "url": "https://github.com/Ocramius/ProxyManager"
-                }
-            },
             "autoload": {
                 "psr-4": {
-                    "ProxyManager\\": "src/ProxyManager"
+                    "Doctrine\\SqlFormatter\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1183,231 +1288,22 @@
             ],
             "authors": [
                 {
-                    "name": "Marco Pivetta",
-                    "email": "ocramius@gmail.com",
-                    "homepage": "https://ocramius.github.io/"
-                },
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
+                    "name": "Jeremy Dorn",
+                    "email": "jeremy@jeremydorn.com",
+                    "homepage": "https://jeremydorn.com/"
                 }
             ],
-            "description": "Adding support for a wider range of PHP versions to ocramius/proxy-manager",
-            "homepage": "https://github.com/FriendsOfPHP/proxy-manager-lts",
+            "description": "a PHP SQL highlighting library",
+            "homepage": "https://github.com/doctrine/sql-formatter/",
             "keywords": [
-                "aop",
-                "lazy loading",
-                "proxy",
-                "proxy pattern",
-                "service proxies"
+                "highlight",
+                "sql"
             ],
             "support": {
-                "issues": "https://github.com/FriendsOfPHP/proxy-manager-lts/issues",
-                "source": "https://github.com/FriendsOfPHP/proxy-manager-lts/tree/v1.0.18"
+                "issues": "https://github.com/doctrine/sql-formatter/issues",
+                "source": "https://github.com/doctrine/sql-formatter/tree/1.4.0"
             },
-            "funding": [
-                {
-                    "url": "https://github.com/Ocramius",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/ocramius/proxy-manager",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-03-20T12:50:41+00:00"
-        },
-        {
-            "name": "jean85/pretty-package-versions",
-            "version": "2.0.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Jean85/pretty-package-versions.git",
-                "reference": "f9fdd29ad8e6d024f52678b570e5593759b550b4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Jean85/pretty-package-versions/zipball/f9fdd29ad8e6d024f52678b570e5593759b550b4",
-                "reference": "f9fdd29ad8e6d024f52678b570e5593759b550b4",
-                "shasum": ""
-            },
-            "require": {
-                "composer-runtime-api": "^2.0.0",
-                "php": "^7.1|^8.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.2",
-                "jean85/composer-provided-replaced-stub-package": "^1.0",
-                "phpstan/phpstan": "^1.4",
-                "phpunit/phpunit": "^7.5|^8.5|^9.4",
-                "vimeo/psalm": "^4.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Jean85\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Alessandro Lai",
-                    "email": "alessandro.lai85@gmail.com"
-                }
-            ],
-            "description": "A library to get pretty versions strings of installed dependencies",
-            "keywords": [
-                "composer",
-                "package",
-                "release",
-                "versions"
-            ],
-            "support": {
-                "issues": "https://github.com/Jean85/pretty-package-versions/issues",
-                "source": "https://github.com/Jean85/pretty-package-versions/tree/2.0.6"
-            },
-            "time": "2024-03-08T09:58:59+00:00"
-        },
-        {
-            "name": "laminas/laminas-code",
-            "version": "4.13.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laminas/laminas-code.git",
-                "reference": "7353d4099ad5388e84737dd16994316a04f48dbf"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-code/zipball/7353d4099ad5388e84737dd16994316a04f48dbf",
-                "reference": "7353d4099ad5388e84737dd16994316a04f48dbf",
-                "shasum": ""
-            },
-            "require": {
-                "php": "~8.1.0 || ~8.2.0 || ~8.3.0"
-            },
-            "require-dev": {
-                "doctrine/annotations": "^2.0.1",
-                "ext-phar": "*",
-                "laminas/laminas-coding-standard": "^2.5.0",
-                "laminas/laminas-stdlib": "^3.17.0",
-                "phpunit/phpunit": "^10.3.3",
-                "psalm/plugin-phpunit": "^0.18.4",
-                "vimeo/psalm": "^5.15.0"
-            },
-            "suggest": {
-                "doctrine/annotations": "Doctrine\\Common\\Annotations >=1.0 for annotation features",
-                "laminas/laminas-stdlib": "Laminas\\Stdlib component"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Laminas\\Code\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "Extensions to the PHP Reflection API, static code scanning, and code generation",
-            "homepage": "https://laminas.dev",
-            "keywords": [
-                "code",
-                "laminas",
-                "laminasframework"
-            ],
-            "support": {
-                "chat": "https://laminas.dev/chat",
-                "docs": "https://docs.laminas.dev/laminas-code/",
-                "forum": "https://discourse.laminas.dev",
-                "issues": "https://github.com/laminas/laminas-code/issues",
-                "rss": "https://github.com/laminas/laminas-code/releases.atom",
-                "source": "https://github.com/laminas/laminas-code"
-            },
-            "funding": [
-                {
-                    "url": "https://funding.communitybridge.org/projects/laminas-project",
-                    "type": "community_bridge"
-                }
-            ],
-            "time": "2023-10-18T10:00:55+00:00"
-        },
-        {
-            "name": "mongodb/mongodb",
-            "version": "1.15.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mongodb/mongo-php-library.git",
-                "reference": "3a681a3b2f2c0ebac227a3b86bb9057d0e6eb8f8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mongodb/mongo-php-library/zipball/3a681a3b2f2c0ebac227a3b86bb9057d0e6eb8f8",
-                "reference": "3a681a3b2f2c0ebac227a3b86bb9057d0e6eb8f8",
-                "shasum": ""
-            },
-            "require": {
-                "ext-hash": "*",
-                "ext-json": "*",
-                "ext-mongodb": "^1.15.0",
-                "jean85/pretty-package-versions": "^1.2 || ^2.0.1",
-                "php": "^7.2 || ^8.0",
-                "symfony/polyfill-php80": "^1.19"
-            },
-            "require-dev": {
-                "doctrine/coding-standard": "^9.0",
-                "squizlabs/php_codesniffer": "^3.6",
-                "symfony/phpunit-bridge": "^5.2",
-                "vimeo/psalm": "^4.28"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.15.x-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/functions.php"
-                ],
-                "psr-4": {
-                    "MongoDB\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Andreas Braun",
-                    "email": "andreas.braun@mongodb.com"
-                },
-                {
-                    "name": "Jeremy Mikola",
-                    "email": "jmikola@gmail.com"
-                }
-            ],
-            "description": "MongoDB driver library",
-            "homepage": "https://jira.mongodb.org/browse/PHPLIB",
-            "keywords": [
-                "database",
-                "driver",
-                "mongodb",
-                "persistence"
-            ],
-            "support": {
-                "issues": "https://github.com/mongodb/mongo-php-library/issues",
-                "source": "https://github.com/mongodb/mongo-php-library/tree/1.15.0"
-            },
-            "time": "2022-11-23T04:45:35+00:00"
+            "time": "2024-05-08T08:12:09+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -5381,6 +5277,68 @@
             "time": "2024-04-18T09:32:20+00:00"
         },
         {
+            "name": "symfony/stopwatch",
+            "version": "v7.0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/stopwatch.git",
+                "reference": "41a7a24aa1dc82adf46a06bc292d1923acfe6b84"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/41a7a24aa1dc82adf46a06bc292d1923acfe6b84",
+                "reference": "41a7a24aa1dc82adf46a06bc292d1923acfe6b84",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "symfony/service-contracts": "^2.5|^3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Stopwatch\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides a way to profile code",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/stopwatch/tree/v7.0.7"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-04-18T09:29:19+00:00"
+        },
+        {
             "name": "symfony/string",
             "version": "v7.0.7",
             "source": {
@@ -6577,68 +6535,6 @@
             "homepage": "https://symfony.com",
             "support": {
                 "source": "https://github.com/symfony/process/tree/v7.0.7"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-04-18T09:29:19+00:00"
-        },
-        {
-            "name": "symfony/stopwatch",
-            "version": "v7.0.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/stopwatch.git",
-                "reference": "41a7a24aa1dc82adf46a06bc292d1923acfe6b84"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/41a7a24aa1dc82adf46a06bc292d1923acfe6b84",
-                "reference": "41a7a24aa1dc82adf46a06bc292d1923acfe6b84",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.2",
-                "symfony/service-contracts": "^2.5|^3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Stopwatch\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Provides a way to profile code",
-            "homepage": "https://symfony.com",
-            "support": {
-                "source": "https://github.com/symfony/stopwatch/tree/v7.0.7"
             },
             "funding": [
                 {

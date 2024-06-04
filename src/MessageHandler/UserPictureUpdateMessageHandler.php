@@ -5,7 +5,7 @@ namespace App\MessageHandler;
 
 use App\Message\UserPictureUpdateMessage;
 use App\Service\FileManager\FileManagerInterface;
-use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -16,7 +16,7 @@ final readonly class UserPictureUpdateMessageHandler
     public function __construct(
         private RequestStack $requestStack,
         private FileManagerInterface $fileManager,
-        private DocumentManager $documentManager,
+        private EntityManagerInterface $entityManager,
 
     ) {
     }
@@ -38,7 +38,7 @@ final readonly class UserPictureUpdateMessageHandler
             $filename = $this->fileManager->upload($file);
 
             $user->{$setter}($filename);
-            $this->documentManager->flush();
+            $this->entityManager->flush();
 
             if ($oldFilename) {
                 $this->fileManager->removeFile($oldFilename);

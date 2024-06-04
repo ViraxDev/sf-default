@@ -4,7 +4,7 @@ networks:
   app-network:
 
 volumes:
-  mongodb-data:
+  mysql-data:
 
 services:
   symfony_app:
@@ -18,10 +18,7 @@ services:
       - ./var:/var/task/var        # force create ./var
       - ./vendor:/var/task/vendor  # force create ./vendor
     depends_on:
-      - mongodb
-    env_file:
-      - .env
-      - .env.local
+      - mysql
 
   nginx:
     image: nginx:1.23.4-alpine
@@ -35,16 +32,35 @@ services:
     networks:
       - app-network
 
-  mongodb:
-    image: mongo:latest
+  mysql:
+    image: bitnami/mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
     volumes:
       - type: volume
-        source: mongodb-data
-        target: /data/db
-    ports:
-      - "27019:27017"
+        source: mysql-data
+        target: /bitnami/mysql/data
     networks:
       - app-network
-    env_file:
-      - .env
-      - .env.local
+
+  phpmyadmin:
+    image: bitnami/phpmyadmin:latest
+    ports:
+      - '80:8080'
+      - '443:8443'
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+    depends_on:
+      - mysql
+    networks:
+      - app-network
