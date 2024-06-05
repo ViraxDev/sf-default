@@ -20,7 +20,7 @@ final class ProfileController extends AbstractController
         ;
 
         if (($formSubmitted = $form->isSubmitted()) && $form->isValid()) {
-            $this->documentManager->flush();
+            $this->entityManager->flush();
             return $this->redirectToRoute('app_profile');
         }
 

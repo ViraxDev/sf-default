@@ -3,12 +3,11 @@ declare(strict_types=1);
 
 namespace App\Command\User;
 
-use App\Document\User;
+use App\Entity\User;
 use App\Enum\UserRoleEnum;
-use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,7 +20,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 )]
 final class CreateCommand extends Command
 {
-    public function __construct(private readonly DocumentManager $documentManager, private readonly UserPasswordHasherInterface $passwordHasher)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly UserPasswordHasherInterface $passwordHasher)
     {
         parent::__construct();
     }
@@ -53,8 +52,8 @@ final class CreateCommand extends Command
         ;
         $user->setPassword($this->passwordHasher->hashPassword($user, $password));
 
-        $this->documentManager->persist($user);
-        $this->documentManager->flush();
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
 
         $io->success(sprintf('User %s created successfully with role "%s"', $email, $role));

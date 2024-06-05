@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Messenger\HandleTrait;
@@ -17,7 +17,7 @@ abstract class AbstractController extends SymfonyAbstractController
     private MessageBusInterface $messageBus;
     protected Request $request;
 
-    public function __construct(MessageBusInterface $messageBus, protected DocumentManager $documentManager, private readonly RequestStack $requestStack)
+    public function __construct(MessageBusInterface $messageBus, protected EntityManagerInterface $entityManager, private readonly RequestStack $requestStack)
     {
         $this->messageBus = $messageBus;
         $this->request = $this->requestStack->getCurrentRequest();

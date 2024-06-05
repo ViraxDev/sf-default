@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Twig\Runtime;
 
-use App\Document\User;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;

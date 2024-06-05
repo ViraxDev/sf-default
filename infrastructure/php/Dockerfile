@@ -13,8 +13,6 @@ RUN install-php-extensions zip-1.21.1
 #install pecl dependencies (php extensions)
 #should be incremented at regular interval
 RUN install-php-extensions xdebug-3.2.1
-RUN install-php-extensions mongodb-1.15.3
-
 
 #configure .ini settings
 # Use the default development configuration
@@ -34,7 +32,7 @@ RUN apk add --no-cache chromium chromium-chromedriver
 # Firefox and GeckoDriver (optional)
 ARG GECKODRIVER_VERSION=0.28.0
 RUN apk add --no-cache firefox libzip-dev; \
-    docker-php-ext-install zip
+    docker-php-ext-install zip pdo_mysql
 RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v"$GECKODRIVER_VERSION"/geckodriver-v"$GECKODRIVER_VERSION"-linux64.tar.gz; \
     tar -zxf geckodriver-v"$GECKODRIVER_VERSION"-linux64.tar.gz -C /usr/bin; \
     rm geckodriver-v"$GECKODRIVER_VERSION"-linux64.tar.gz
