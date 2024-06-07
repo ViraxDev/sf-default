@@ -1,5 +1,9 @@
 {% extends "security/base.html.twig" %}
 
+{% block title %}
+    {{ parent() }} Connexion
+{% endblock %}
+
 {% block body %}
     <form method="post">
         <div class="card">
@@ -42,7 +46,7 @@
                         </div>
                     </div>
                     <div class="col-auto"><a class="fs--1"
-                                             href="../../../pages/authentication/split/forgot-password.html">Mot de passe oublié ?</a></div>
+                                             href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a></div>
                 </div>
                 <input type="hidden" name="_csrf_token"
                        value="{{ csrf_token('authenticate') }}"
