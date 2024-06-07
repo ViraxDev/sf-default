@@ -61,26 +61,26 @@
                             </div>
                         </div>
                         <div class="col-lg-6 position-relative">
-                            {{ form_label(form.password.first, null, {
+                            {{ form_label(form.password.plainPassword.first, null, {
                                 'label': 'Mot de passe',
                                 'class': 'form-label'
                             }) }}
 
-                            {{ form_widget(form.password.first, {'attr': {'class': 'form-control', 'value': field_value(form.password.first)}}) }}
+                            {{ form_widget(form.password.plainPassword.first, {'attr': {'class': 'form-control', 'value': field_value(form.password.plainPassword.first)}}) }}
 
-                            {% for error in field_errors(form.password.first) %}
+                            {% for error in field_errors(form.password.plainPassword.first) %}
                                 <div class="invalid-tooltip">{{ error }}</div>
                             {% endfor %}
                         </div>
                         <div class="col-lg-6">
-                            {{ form_label(form.password.second, null, {
+                            {{ form_label(form.password.plainPassword.second, null, {
                                 'label': 'Répétez le mot de passe',
                                 'class': 'form-label'
                             }) }}
 
-                            {{ form_widget(form.password.second, {'attr': {'class': 'form-control', 'value': field_value(form.password.second)}}) }}
+                            {{ form_widget(form.password.plainPassword.second, {'attr': {'class': 'form-control', 'value': field_value(form.password.plainPassword.second)}}) }}
 
-                            {% for error in field_errors(form.password.second) %}
+                            {% for error in field_errors(form.password.plainPassword.second) %}
                                 <div class="invalid-tooltip">{{ error }}</div>
                             {% endfor %}
                         </div>
