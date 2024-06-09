@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ parent() }} Mon compte{% endblock %}
+{% block title %}{{ parent() }} {{ 'my.account' | trans }}{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -13,12 +13,12 @@
                         <!--/.bg-holder-->
 
                         <input accept="image/*" data-property="coverPictureProfile" data-path-upload="{{ path('app_picture_update') }}" class="d-none" id="upload-cover-image" type="file" />
-                        <label class="cover-image-file-input" for="upload-cover-image"><span class="fas fa-camera me-2"></span><span>Changer la photo de couverture</span></label>
+                        <label class="cover-image-file-input" for="upload-cover-image"><span class="fas fa-camera me-2"></span><span>{{ 'change.photo.cover' | trans }}</span></label>
                     </div>
                     <div class="avatar avatar-5xl avatar-profile shadow-sm img-thumbnail rounded-circle">
                         <div class="h-100 w-100 rounded-circle overflow-hidden position-relative"> <img src="{{ user_picture('pictureProfile') }}" width="200" alt="" data-dz-thumbnail="data-dz-thumbnail" />
                             <input data-property="pictureProfile" data-path-upload="{{ path('app_picture_update') }}" class="d-none" id="profile-image" type="file" accept="image/*"/>
-                            <label class="mb-0 overlay-icon d-flex flex-center" for="profile-image"><span class="bg-holder overlay overlay-0"></span><span class="z-1 text-white dark__text-white text-center fs--1"><span class="fas fa-camera"></span><span class="d-block">Mettre à jour</span></span></label>
+                            <label class="mb-0 overlay-icon d-flex flex-center" for="profile-image"><span class="bg-holder overlay overlay-0"></span><span class="z-1 text-white dark__text-white text-center fs--1"><span class="fas fa-camera"></span><span class="d-block">{{ 'update' | trans }}</span></span></label>
                         </div>
                     </div>
                 </div>
@@ -29,14 +29,14 @@
         <div class="col-12">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0">Mon compte</h5>
+                    <h5 class="mb-0">{{ 'my.account'|trans }}</h5>
                 </div>
                 <div class="card-body bg-light">
                     {% set extra_class = formSubmitted ? ' was-validated' : '' %}
                     {{ form_start(form, {'attr': {'class': 'row g-3 needs-validation' ~ extra_class}}) }}
                         <div class="col-lg-6">
                             {{ form_label(form.firstName, null, {
-                                'label': 'Prénom',
+                                'label': 'first_name'|trans,
                                 'class': 'form-label'
                             }) }}
 
@@ -44,7 +44,7 @@
                         </div>
                         <div class="col-lg-6">
                             {{ form_label(form.lastName, null, {
-                                'label': 'Nom',
+                                'label': 'last_name'|trans,
                                 'class': 'form-label'
                             }) }}
 
@@ -53,7 +53,7 @@
                         <div class="col-lg-12">
                             <div class="col-lg-6">
                                 {{ form_label(form.email, null, {
-                                    'label': 'Email',
+                                    'label': 'email'|trans,
                                     'class': 'form-label'
                                 }) }}
 
@@ -62,7 +62,7 @@
                         </div>
                         <div class="col-lg-6 position-relative">
                             {{ form_label(form.password.plainPassword.first, null, {
-                                'label': 'Mot de passe',
+                                'label': 'password'|trans,
                                 'class': 'form-label'
                             }) }}
 
@@ -74,7 +74,7 @@
                         </div>
                         <div class="col-lg-6">
                             {{ form_label(form.password.plainPassword.second, null, {
-                                'label': 'Répétez le mot de passe',
+                                'label': 'password.repeat'|trans,
                                 'class': 'form-label'
                             }) }}
 
@@ -85,7 +85,7 @@
                             {% endfor %}
                         </div>
                         <div class="col-12 d-flex justify-content-end">
-                            <button class="btn btn-primary" type="submit">Mettre à jour</button>
+                            <button class="btn btn-primary" type="submit">{{ 'update'|trans }}</button>
                         </div>
 
                     {{ form_errors(form) }}

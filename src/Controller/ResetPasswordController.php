@@ -154,7 +154,7 @@ final class ResetPasswordController extends AbstractController
         $email = (new TemplatedEmail())
             ->from(new Address('admin@symfony-app.com', 'Admin symfony-app'))
             ->to($user->getEmail())
-            ->subject('Votre demande de changement de mot de passe')
+            ->subject($translator->trans('password.changed.email', domain: 'email'))
             ->htmlTemplate('reset_password/email.html.twig')
             ->context([
                 'resetToken' => $resetToken,
