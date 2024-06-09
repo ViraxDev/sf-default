@@ -22,9 +22,7 @@ final class PasswordFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $passwordConstraint = [new NotBlank([
-            'message' => 'Veuillez entrer un mot de passe',
-        ])];
+        $passwordConstraint = [new NotBlank()];
 
         if (!in_array($this->env, ['test', 'dev'])) {
             array_push($passwordConstraint, new PasswordStrength(), new NotCompromisedPassword());
@@ -39,7 +37,6 @@ final class PasswordFormType extends AbstractType
                     ],
                 ],
                 'first_options' => ['constraints' => $passwordConstraint],
-                'invalid_message' => 'Les mots de passe doivent être identiques.',
                 // Instead of being set onto the object directly,
                 // this is read and encoded in the controller
                 'mapped' => false,

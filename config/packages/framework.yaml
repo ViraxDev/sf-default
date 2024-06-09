@@ -1,6 +1,6 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
-    default_locale: fr
+    default_locale: '%env(APP_DEFAULT_LOCALE)%'
     secret: '%env(APP_SECRET)%'
     #csrf_protection: true
 
