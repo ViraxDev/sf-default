@@ -1,6 +1,6 @@
 <nav class="navbar navbar-light navbar-vertical navbar-expand-xl">
     <script>
-        var navbarStyle = localStorage.getItem("navbarStyle");
+        let navbarStyle = localStorage.getItem("navbarStyle");
         if (navbarStyle && navbarStyle !== 'transparent') {
             document.querySelector('.navbar-vertical').classList.add(`navbar-${navbarStyle}`);
         }
@@ -10,7 +10,7 @@
 
             <button class="btn navbar-toggler-humburger-icon navbar-vertical-toggle" data-bs-toggle="tooltip" data-bs-placement="left" title="Toggle Navigation"><span class="navbar-toggle-icon"><span class="toggle-line"></span></span></button>
 
-        </div><a class="navbar-brand" href="../index.html">
+        </div><a class="navbar-brand" href="{{ path('app_home') }}">
             <div class="d-flex align-items-center py-3"><img class="me-2" src="{{ asset('theme/img/icons/spot-illustrations/falcon.png') }}" alt="" width="40" /><span class="font-sans-serif">{{ app_name }}</span>
             </div>
         </a>
