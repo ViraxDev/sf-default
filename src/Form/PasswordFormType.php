@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Form;
@@ -18,13 +19,14 @@ final class PasswordFormType extends AbstractType
     public function __construct(
         #[Autowire(env: 'APP_ENV')]
         private readonly string $env
-    ) {}
+    ) {
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $passwordConstraint = [new NotBlank()];
 
-        if (!in_array($this->env, ['test', 'dev'])) {
+        if (!in_array($this->env, ['test', 'dev'], true)) {
             array_push($passwordConstraint, new PasswordStrength(), new NotCompromisedPassword());
         }
 

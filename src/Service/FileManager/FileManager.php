@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service\FileManager;
@@ -21,7 +22,7 @@ final readonly class FileManager implements FileManagerInterface
     public function upload(UploadedFile $file): string
     {
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $fileName = $originalFilename. '-'. uniqid() . '.' . $file->guessExtension();
+        $fileName = $originalFilename.'-'.uniqid().'.'.$file->guessExtension();
 
         $file->move($this->uploadDirectory, $fileName);
 
@@ -30,6 +31,6 @@ final readonly class FileManager implements FileManagerInterface
 
     public function removeFile(string $file): void
     {
-        $this->filesystem->remove($this->uploadDirectory . '/' . $file);
+        $this->filesystem->remove($this->uploadDirectory.'/'.$file);
     }
 }

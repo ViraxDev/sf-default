@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -21,6 +22,7 @@ final class ProfileController extends AbstractController
 
         if (($formSubmitted = $form->isSubmitted()) && $form->isValid()) {
             $this->entityManager->flush();
+
             return $this->redirectToRoute('app_profile');
         }
 

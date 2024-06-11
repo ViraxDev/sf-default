@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Twig\Runtime\User;
@@ -23,6 +24,7 @@ final readonly class ExtensionRuntime implements RuntimeExtensionInterface
         $defaultPicture = match ($type) {
             'pictureProfile' => 'theme/img/team/avatar.png',
             'coverPictureProfile' => 'theme/img/generic/4.jpg',
+            default => throw new \LogicException(sprintf('Unknown %s type', $type)),
         };
 
         $getter = sprintf('get%s', ucfirst($type));

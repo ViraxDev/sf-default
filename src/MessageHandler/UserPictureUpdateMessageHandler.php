@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\MessageHandler;
@@ -17,7 +18,6 @@ final readonly class UserPictureUpdateMessageHandler
         private RequestStack $requestStack,
         private FileManagerInterface $fileManager,
         private EntityManagerInterface $entityManager,
-
     ) {
     }
 
@@ -25,12 +25,12 @@ final readonly class UserPictureUpdateMessageHandler
     {
         $request = $this->requestStack->getCurrentRequest();
         $user = $message->user;
-        $setter = 'set'. ucfirst($request->get('property'));
-        $getter = 'get'. ucfirst($request->get('property'));
+        $setter = 'set'.ucfirst($request->get('property'));
+        $getter = 'get'.ucfirst($request->get('property'));
 
-        /** @var UploadedFile $file */
         if (
             $request->isXmlHttpRequest()
+            // @var UploadedFile $file
             && ($file = $request->files->get('photo')) instanceof UploadedFile
             && method_exists($user, $setter)
         ) {
