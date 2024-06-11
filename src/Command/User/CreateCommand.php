@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Command\User;
@@ -40,7 +41,7 @@ final class CreateCommand extends Command
         $email = $input->getArgument('email');
         $password = $input->getArgument('password');
 
-        if (!in_array($role = $input->getArgument('role'), $roles = UserRoleEnum::getRoles())) {
+        if (!in_array($role = $input->getArgument('role'), $roles = UserRoleEnum::getRoles(), true)) {
             $io->error(sprintf('The role %s should be one of [%s]', $role, implode(',', $roles)));
 
             return Command::FAILURE;
@@ -54,7 +55,6 @@ final class CreateCommand extends Command
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
-
 
         $io->success(sprintf('User %s created successfully with role "%s"', $email, $role));
 

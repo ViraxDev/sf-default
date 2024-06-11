@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Message;
@@ -9,7 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 final readonly class UserPictureUpdateMessage
 {
     public function __construct(
-        public UserInterface|User $user,
+        public User|UserInterface $user,
     ) {
     }
 }

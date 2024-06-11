@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Form;
@@ -17,13 +18,13 @@ final class UserType extends AbstractType
         $builder
             ->add('email', EmailType::class)
             ->add('password', PasswordFormType::class, [
-                'data_class' => User::class
+                'data_class' => User::class,
             ])
             ->add('firstName', TextType::class, [
-                'required' => false
+                'required' => false,
             ])
             ->add('lastName', TextType::class, [
-                'required' => false
+                'required' => false,
             ])
         ;
     }

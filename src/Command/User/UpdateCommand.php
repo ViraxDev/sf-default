@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Command\User;
@@ -41,13 +42,12 @@ final class UpdateCommand extends Command
         $password = $input->getArgument('password');
         $role = $input->getArgument('role');
 
-        if ($role && !in_array($role, $roles = UserRoleEnum::getRoles())) {
+        if ($role && !in_array($role, $roles = UserRoleEnum::getRoles(), true)) {
             $io->error(sprintf('The role %s should be one of [%s]', $role, implode(',', $roles)));
 
             return Command::FAILURE;
         }
 
-        /** @var User $user */
         if (!($user = $this->entityManager->getRepository(User::class)->findOneBy(compact('email')))) {
             $io->error(sprintf('The user %s doesn\'t exist.', $email));
 
