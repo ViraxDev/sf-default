@@ -31,7 +31,7 @@
 
         {% block stylesheets %}
             <link rel="preconnect" href="https://fonts.gstatic.com">
-            <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap" rel="preload" as="style">
         {% endblock %}
     </head>
 
@@ -41,15 +41,6 @@
         <!-- ===============================================-->
         <main class="main" id="top">
         <div class="container" data-layout="container">
-            <script>
-                var isFluid = JSON.parse(localStorage.getItem('isFluid'));
-                if (isFluid) {
-                    var container = document.querySelector('[data-layout]');
-                    container.classList.remove('container');
-                    container.classList.add('container-fluid');
-                }
-            </script>
-
             {% include 'includes/_navbar.html.twig' %}
 
             <div class="content">

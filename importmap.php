@@ -61,4 +61,7 @@ return [
     'jquery' => [
         'version' => '3.7.1',
     ],
+    'lazysizes' => [
+        'version' => '5.3.2',
+    ],
 ];
