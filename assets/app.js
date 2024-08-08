@@ -1,9 +1,7 @@
-import('./theme/config.js');
 import SimpleBar from 'simplebar';
 window.SimpleBar = SimpleBar;
 
 import('./theme/simplebar/simplebar.min.css');
-// import('./theme/css/theme-rtl.css');
 import('./theme/css/theme.css');
 import('./theme/css/user-rtl.css');
 import('./theme/css/user.css');
@@ -16,6 +14,7 @@ import _ from 'lodash';
 import('./theme/vendors/list.js/list.min.js');
 import('./theme/theme.js');
 import('./photo-upload.js')
+import('lazysizes')
 
 window.Toast = Toast;
 window.Tooltip = Tooltip;
