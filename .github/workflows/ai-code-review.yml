@@ -1,4 +1,4 @@
-name: Comprehensive AI Code Review with Full Project Context
+name: AI Code Review with src Context
 on:
   workflow_dispatch:
     inputs:
@@ -72,30 +72,20 @@ jobs:
                   log(f"Error posting review. Status code: {response.status_code}")
                   log(f"Response content: {response.text}")
 
-          def get_file_content(file_path, max_lines=None):
-              try:
-                  with open(file_path, 'r') as file:
-                      if max_lines:
-                          lines = file.readlines()[:max_lines]
-                          return ''.join(lines)
-                      else:
-                          return file.read()
-              except Exception as e:
-                  return f"Error reading {file_path}: {str(e)}"
-
-          def get_all_files_content():
-              all_files = run_command("git ls-files").split('\n')
-              content = {}
-              for file in all_files:
-                  if os.path.isfile(file):
-                      content[file] = get_file_content(file)
-              return content
+          def get_src_content():
+              src_content = {}
+              for root, dirs, files in os.walk('src'):
+                  for file in files:
+                      if file.endswith('.php'):
+                          file_path = os.path.join(root, file)
+                          with open(file_path, 'r') as f:
+                              src_content[file_path] = f.read()
+              return src_content
 
           def get_project_context():
-              all_files_content = get_all_files_content()
               context = {
-                  "structure": run_command("tree -L 3"),
-                  "all_files": all_files_content
+                  "src_structure": run_command("tree src -L 3"),
+                  "src_content": get_src_content()
               }
               return json.dumps(context)
 
@@ -111,7 +101,7 @@ jobs:
                   return None
               return response.json()
 
-          log("Starting Comprehensive AI Code Review with Full Project Context")
+          log("Starting AI Code Review with src Context")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -136,7 +126,7 @@ jobs:
               patch = file['patch']
               log(f"Reviewing changes in file: {filename}")
 
-              prompt = f"""As an AI code reviewer with full access to the entire project, provide a concise and precise review for the changes in the following file:
+              prompt = f"""As an AI code reviewer with access to the src directory of the project, provide a concise and precise review for the changes in the following file:
 
               Project Context: {project_context}
 
@@ -188,5 +178,5 @@ jobs:
               file_comments
           )
 
-          log("Comprehensive AI Code Review with Full Project Context completed")
+          log("AI Code Review with src Context completed")
           EOF
