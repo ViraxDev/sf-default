@@ -1,4 +1,4 @@
-name: Contextual AI Code Review
+name: Concise and Precise AI Code Review
 on:
   workflow_dispatch:
     inputs:
@@ -37,6 +37,7 @@ jobs:
           import subprocess
           import json
           import requests
+          import re
           from anthropic import Anthropic
 
           def log(message):
@@ -72,7 +73,19 @@ jobs:
                   log(f"Error posting review comment. Status code: {response.status_code}")
                   log(f"Response content: {response.text}")
 
-          log("Starting Contextual AI Code Review")
+          def get_changed_lines(patch):
+              lines = []
+              current_line = 0
+              for line in patch.split('\n'):
+                  if line.startswith('@@'):
+                      current_line = int(line.split('+')[1].split(',')[0]) - 1
+                  elif line.startswith('+'):
+                      lines.append(current_line)
+                  if not line.startswith('-'):
+                      current_line += 1
+              return lines
+
+          log("Starting Concise and Precise AI Code Review")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -93,11 +106,6 @@ jobs:
               log(f"Error testing API connection: {str(e)}")
               sys.exit(1)
 
-          # Get project context
-          log("Fetching project context")
-          project_structure = run_command("tree -L 3 -d")
-          readme_content = run_command("cat README.md") or "No README.md found"
-          
           # Get changed files and their patches
           pr_number = os.environ['PR_NUMBER']
           repo = os.environ['GITHUB_REPOSITORY']
@@ -105,8 +113,6 @@ jobs:
           
           pr_info_command = f"gh api repos/{repo}/pulls/{pr_number}"
           pr_info = json.loads(run_command(pr_info_command))
-          pr_title = pr_info['title']
-          pr_description = pr_info['body'] or "No description provided"
           commit_id = pr_info['head']['sha']
           
           files_command = f"gh api repos/{repo}/pulls/{pr_number}/files"
@@ -125,67 +131,56 @@ jobs:
               log(f"Reviewing changes in file: {filename}")
               log(f"Patch preview (first 100 chars): {patch[:100]}...")
 
-              prompt = f"""You are an AI code reviewer. Review the following changes in the context of the entire project:
-
-              Project structure:
-              {project_structure}
-
-              README preview:
-              {readme_content[:500]}...
-
-              Pull Request:
-              Title: {pr_title}
-              Description: {pr_description}
-
-              File being reviewed: {filename}
-              Changes:
-              {patch}
-
-              Please provide a thorough code review of these changes, considering:
-              1. How well the changes fit with the overall project structure and purpose
-              2. Code quality and adherence to best practices
-              3. Potential bugs or issues introduced by these changes
-              4. Performance implications
-              5. Suggestions for improvement
-
-              Format your review as markdown bullet points, focusing specifically on the changes made in this file."""
-
-              log("Sending request to Anthropic API")
-              try:
-                  response = anthropic.messages.create(
-                      model="claude-3-opus-20240229",
-                      max_tokens=2000,
-                      messages=[
-                          {"role": "user", "content": prompt}
-                      ]
-                  )
-                  log("Received response from Anthropic API")
-                  log(f"Response content (first 100 chars): {response.content[0].text[:100]}...")
-                  review = response.content[0].text
+              changed_lines = get_changed_lines(patch)
           
-                  if not review.strip():
-                      log("Error: Received empty review from Anthropic API")
+              for line in changed_lines:
+                  prompt = f"""As an AI code reviewer, provide a concise and precise review for the following change:
+
+                  File: {filename}
+                  Line: {line}
+                  Change: {next((l for l in patch.split('\n') if l.startswith('+') and not l.startswith('+++')), 'No specific line found')}
+
+                  Focus on:
+                  1. Code quality
+                  2. Potential issues
+                  3. Brief improvement suggestion (if necessary)
+
+                  Keep your review extremely concise, ideally within 2-3 short sentences."""
+
+                  log("Sending request to Anthropic API")
+                  try:
+                      response = anthropic.messages.create(
+                          model="claude-3-opus-20240229",
+                          max_tokens=100,
+                          messages=[
+                              {"role": "user", "content": prompt}
+                          ]
+                      )
+                      log("Received response from Anthropic API")
+                      log(f"Response content: {response.content[0].text}")
+                      review = response.content[0].text.strip()
+          
+                      if not review:
+                          log("Error: Received empty review from Anthropic API")
+                          continue
+          
+                  except Exception as e:
+                      log(f"Error calling Anthropic API: {str(e)}")
+                      log(f"Error type: {type(e).__name__}")
+                      if hasattr(e, 'response'):
+                          log(f"Response status code: {e.response.status_code}")
+                          log(f"Response content: {e.response.text}")
                       continue
-          
-              except Exception as e:
-                  log(f"Error calling Anthropic API: {str(e)}")
-                  log(f"Error type: {type(e).__name__}")
-                  if hasattr(e, 'response'):
-                      log(f"Response status code: {e.response.status_code}")
-                      log(f"Response content: {e.response.text}")
-                  continue
 
-              log("Posting review comment on GitHub")
-              # Get the last line number of the patch
-              last_line = max([int(line.split('+')[1].split(',')[0]) for line in patch.split('\n') if line.startswith('@@')])
-              post_review_comment(
-                  repo,
-                  pr_number,
-                  review,
-                  filename,
-                  commit_id,
-                  last_line
-              )
+                  log("Posting review comment on GitHub")
+                  post_review_comment(
+                      repo,
+                      pr_number,
+                      review,
+                      filename,
+                      commit_id,
+                      line
+                  )
 
-          log("Contextual AI Code Review completed")
+          log("Concise and Precise AI Code Review completed")
           EOF
