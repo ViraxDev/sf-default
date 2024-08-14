@@ -26,21 +26,35 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install anthropic
+        run: |
+          pip install anthropic
+          sudo apt-get install -y gh
 
       - name: AI Code Review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.inputs.pr_number }}
         run: |
-          python <<EOF
+          python3 <<EOF
           import os
           import sys
+          import subprocess
+          import base64
           from anthropic import Anthropic
 
           def log(message):
               print(f"DEBUG: {message}")
               sys.stdout.flush()
+
+          def run_command(command):
+              try:
+                  result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
+                  return result.stdout.strip()
+              except subprocess.CalledProcessError as e:
+                  log(f"Error executing command: {e}")
+                  log(f"Command output: {e.output}")
+                  return None
 
           log("Starting AI Code Review")
 
@@ -61,12 +75,13 @@ jobs:
               log(f"API connection test successful. Response: {response.content[0].text}")
           except Exception as e:
               log(f"Error testing API connection: {str(e)}")
+              sys.exit(1)
 
           # Define changed_files
           changed_files = "${{ steps.changed-files.outputs.all_changed_files }}".split()
           log(f"Changed files: {changed_files}")
 
-          pr_number = "${{ github.event.inputs.pr_number }}"
+          pr_number = os.environ['PR_NUMBER']
 
           for file in changed_files:
               log(f"Reviewing file: {file}")
@@ -91,6 +106,11 @@ jobs:
                   log("Received response from Anthropic API")
                   log(f"Response content (first 100 chars): {response.content[0].text[:100]}...")
                   review = response.content[0].text
+          
+                  if not review.strip():
+                      log("Error: Received empty review from Anthropic API")
+                      continue
+          
               except Exception as e:
                   log(f"Error calling Anthropic API: {str(e)}")
                   log(f"Error type: {type(e).__name__}")
@@ -100,12 +120,15 @@ jobs:
                   continue
 
               log("Posting comment to GitHub")
-              comment_command = f'gh pr comment {pr_number} --body "**AI Review for `{file}`:**\n\n{review}"'
-              result = os.system(comment_command)
-              if result != 0:
-                  log(f"Error posting comment to GitHub. Exit code: {result}")
-              else:
+              comment_body = f"**AI Review for `{file}`:**\n\n{review}"
+              encoded_comment = base64.b64encode(comment_body.encode()).decode()
+              comment_command = f'echo {encoded_comment} | base64 -d | gh pr comment {pr_number} --body-file -'
+              result = run_command(comment_command)
+              if result is not None:
                   log("Comment posted successfully")
+                  log(f"GitHub response: {result}")
+              else:
+                  log("Error posting comment to GitHub")
 
           log("AI Code Review completed")
           EOF
