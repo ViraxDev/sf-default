@@ -36,7 +36,6 @@ jobs:
           import sys
           import subprocess
           import json
-          import base64
           import requests
           from anthropic import Anthropic
 
@@ -71,16 +70,119 @@ jobs:
                   log(f"Error posting review comment. Status code: {response.status_code}")
                   log(f"Response content: {response.text}")
 
-          # ... [rest of the script remains the same until the review posting part]
+          log("Starting Contextual AI Code Review")
 
-          log("Posting review comment on GitHub")
-          post_review_comment(
-              repo,
-              pr_number,
-              review,
-              filename,
-              file['changes']
-          )
+          api_key = os.environ['ANTHROPIC_API_KEY']
+          anthropic = Anthropic(api_key=api_key)
+          
+          log(f"Anthropic API Key (first 5 chars): {api_key[:5]}...")
+
+          # Test API connection
+          def test_api():
+              return anthropic.messages.create(
+                  model="claude-3-opus-20240229",
+                  max_tokens=10,
+                  messages=[
+                      {"role": "user", "content": "Say hello!"}
+                  ]
+              )
+
+          try:
+              response = test_api()
+              log(f"API connection test successful. Response: {response.content[0].text}")
+          except Exception as e:
+              log(f"Error testing API connection: {str(e)}")
+              sys.exit(1)
+
+          # Get project context
+          log("Fetching project context")
+          project_structure = run_command("tree -L 3 -d")
+          readme_content = run_command("cat README.md") or "No README.md found"
+          
+          # Get changed files and their patches
+          pr_number = os.environ['PR_NUMBER']
+          repo = os.environ['GITHUB_REPOSITORY']
+          log(f"Fetching changes for PR #{pr_number} in repository {repo}")
+          
+          pr_info_command = f"gh api repos/{repo}/pulls/{pr_number}"
+          pr_info = json.loads(run_command(pr_info_command))
+          pr_title = pr_info['title']
+          pr_description = pr_info['body'] or "No description provided"
+          
+          files_command = f"gh api repos/{repo}/pulls/{pr_number}/files"
+          files_output = run_command(files_command)
+          
+          if files_output is None:
+              log("Error: Unable to fetch changed files")
+              sys.exit(1)
+          
+          changed_files = json.loads(files_output)
+          
+          for file in changed_files:
+              filename = file['filename']
+              patch = file['patch']
+          
+              log(f"Reviewing changes in file: {filename}")
+              log(f"Patch preview (first 100 chars): {patch[:100]}...")
+
+              prompt = f"""You are an AI code reviewer. Review the following changes in the context of the entire project:
+
+              Project structure:
+              {project_structure}
+
+              README preview:
+              {readme_content[:500]}...
+
+              Pull Request:
+              Title: {pr_title}
+              Description: {pr_description}
+
+              File being reviewed: {filename}
+              Changes:
+              {patch}
+
+              Please provide a thorough code review of these changes, considering:
+              1. How well the changes fit with the overall project structure and purpose
+              2. Code quality and adherence to best practices
+              3. Potential bugs or issues introduced by these changes
+              4. Performance implications
+              5. Suggestions for improvement
+
+              Format your review as markdown bullet points, focusing specifically on the changes made in this file."""
+
+              log("Sending request to Anthropic API")
+              try:
+                  response = anthropic.messages.create(
+                      model="claude-3-opus-20240229",
+                      max_tokens=2000,
+                      messages=[
+                          {"role": "user", "content": prompt}
+                      ]
+                  )
+                  log("Received response from Anthropic API")
+                  log(f"Response content (first 100 chars): {response.content[0].text[:100]}...")
+                  review = response.content[0].text
+          
+                  if not review.strip():
+                      log("Error: Received empty review from Anthropic API")
+                      continue
+          
+              except Exception as e:
+                  log(f"Error calling Anthropic API: {str(e)}")
+                  log(f"Error type: {type(e).__name__}")
+                  if hasattr(e, 'response'):
+                      log(f"Response status code: {e.response.status_code}")
+                      log(f"Response content: {e.response.text}")
+                  continue
+
+              log("Posting review comment on GitHub")
+              post_review_comment(
+                  repo,
+                  pr_number,
+                  review,
+                  filename,
+                  file['changes']
+              )
 
           log("Contextual AI Code Review completed")
           EOF
