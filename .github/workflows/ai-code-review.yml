@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install anthropic
+          pip install anthropic requests
           sudo apt-get install -y gh
 
       - name: AI Code Review
@@ -41,6 +41,7 @@ jobs:
           import sys
           import subprocess
           import base64
+          import time
           from anthropic import Anthropic
 
           def log(message):
@@ -56,6 +57,21 @@ jobs:
                   log(f"Command output: {e.output}")
                   return None
 
+          def retry_with_exponential_backoff(func, max_retries=5, initial_delay=1, max_delay=60):
+              retries = 0
+              delay = initial_delay
+              while retries < max_retries:
+                  try:
+                      return func()
+                  except Exception as e:
+                      log(f"Error (attempt {retries + 1}/{max_retries}): {str(e)}")
+                      if retries == max_retries - 1:
+                          raise
+                      retries += 1
+                      log(f"Retrying in {delay} seconds...")
+                      time.sleep(delay)
+                      delay = min(delay * 2, max_delay)
+
           log("Starting AI Code Review")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
@@ -64,14 +80,17 @@ jobs:
           log(f"Anthropic API Key (first 5 chars): {api_key[:5]}...")
 
           # Test API connection
-          try:
-              response = anthropic.messages.create(
+          def test_api():
+              return anthropic.messages.create(
                   model="claude-3-opus-20240229",
                   max_tokens=10,
                   messages=[
                       {"role": "user", "content": "Say hello!"}
                   ]
               )
+
+          try:
+              response = retry_with_exponential_backoff(test_api)
               log(f"API connection test successful. Response: {response.content[0].text}")
           except Exception as e:
               log(f"Error testing API connection: {str(e)}")
@@ -96,13 +115,16 @@ jobs:
 
               log("Sending request to Anthropic API")
               try:
-                  response = anthropic.messages.create(
-                      model="claude-3-opus-20240229",
-                      max_tokens=2000,
-                      messages=[
-                          {"role": "user", "content": prompt}
-                      ]
-                  )
+                  def call_api():
+                      return anthropic.messages.create(
+                          model="claude-3-opus-20240229",
+                          max_tokens=2000,
+                          messages=[
+                              {"role": "user", "content": prompt}
+                          ]
+                      )
+          
+                  response = retry_with_exponential_backoff(call_api)
                   log("Received response from Anthropic API")
                   log(f"Response content (first 100 chars): {response.content[0].text[:100]}...")
                   review = response.content[0].text
