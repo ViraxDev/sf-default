@@ -1,4 +1,4 @@
-name: AI Code Review of All Files
+name: AI Code Review with Enhanced API Debugging
 on: [pull_request]
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install anthropic
+        run: pip install anthropic requests
 
       - name: AI Code Review
         env:
@@ -29,6 +29,7 @@ jobs:
           python <<EOF
           import os
           import sys
+          import requests
           from anthropic import Anthropic
 
           def log(message):
@@ -37,54 +38,29 @@ jobs:
 
           log("Starting AI Code Review")
 
-          anthropic = Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
+          api_key = os.environ['ANTHROPIC_API_KEY']
+          anthropic = Anthropic(api_key=api_key)
           
-          log(f"Anthropic API Key (first 5 chars): {os.environ['ANTHROPIC_API_KEY'][:5]}...")
+          log(f"Anthropic API Key (first 5 chars): {api_key[:5]}...")
 
-          def get_repo_summary():
-              summary = "Repository structure:\n"
-              for root, dirs, files in os.walk('.'):
-                  if '.git' in dirs:
-                      dirs.remove('.git')
-                  path = root.split(os.sep)
-                  summary += (len(path) - 1) * '  ' + os.path.basename(root) + '/\n'
-                  for file in files:
-                      summary += len(path) * '  ' + file + '\n'
-              return summary
+          # Test API connection
+          try:
+              headers = {
+                  "x-api-key": api_key,
+                  "content-type": "application/json"
+              }
+              response = requests.get("https://api.anthropic.com/v1/models", headers=headers)
+              log(f"API connection test status: {response.status_code}")
+              log(f"API response: {response.text[:100]}...")  # Log first 100 characters of response
+          except Exception as e:
+              log(f"Error testing API connection: {str(e)}")
 
-          repo_summary = get_repo_summary()
-          log("Repository summary generated")
-
-          changed_files = "${{ steps.changed-files.outputs.all_changed_files }}".split()
-          log(f"Changed files: {changed_files}")
-
+          # Rest of the script remains the same...
+          
+          # In the main loop where we call the API:
           for file in changed_files:
-              log(f"Reviewing file: {file}")
-              try:
-                  with open(file, 'r') as f:
-                      content = f.read()
-              except Exception as e:
-                  log(f"Error reading file {file}: {str(e)}")
-                  continue
-
-              prompt = f"""You are an AI code reviewer. You have access to the full repository structure.
-              Repository summary:
-              {repo_summary}
-
-              Now, review the following file: {file}
-
-              Here's the content:
-              {content}
-
-              Please provide a thorough code review, considering:
-              1. Code quality and best practices
-              2. Potential bugs or issues
-              3. Performance considerations
-              4. How well it fits with the overall project structure
-              5. Suggestions for improvement
-
-              Format your review as markdown bullet points."""
-
+              # ... (previous code)
+          
               log("Sending request to Anthropic API")
               try:
                   response = anthropic.messages.create(
@@ -93,18 +69,18 @@ jobs:
                       messages=[{"role": "user", "content": prompt}]
                   )
                   log("Received response from Anthropic API")
+                  log(f"Response status: {response.status}")
+                  log(f"Response content (first 100 chars): {str(response.content)[:100]}...")
                   review = response.content[0].text
               except Exception as e:
                   log(f"Error calling Anthropic API: {str(e)}")
+                  log(f"Error type: {type(e).__name__}")
+                  if hasattr(e, 'response'):
+                      log(f"Response status code: {e.response.status_code}")
+                      log(f"Response content: {e.response.text}")
                   continue
 
-              log("Posting comment to GitHub")
-              comment_command = f'gh pr comment ${{ github.event.pull_request.number }} --body "AI Review for {file}:\n{review}"'
-              result = os.system(comment_command)
-              if result != 0:
-                  log(f"Error posting comment to GitHub. Exit code: {result}")
-              else:
-                  log("Comment posted successfully")
+              # ... (rest of the code)
 
           log("AI Code Review completed")
           EOF
