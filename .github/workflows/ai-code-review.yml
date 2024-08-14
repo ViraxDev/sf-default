@@ -1,4 +1,4 @@
-name: AI Code Review with Fixed API Test and Variable Definition
+name: AI Code Review with Corrected API Handling
 on: [pull_request]
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
           import os
           import sys
           import requests
-          from anthropic import Anthropic
+          from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 
           def log(message):
               print(f"DEBUG: {message}")
@@ -45,13 +45,12 @@ jobs:
 
           # Test API connection
           try:
-              headers = {
-                  "x-api-key": api_key,
-                  "content-type": "application/json"
-              }
-              response = requests.get("https://api.anthropic.com/v1/messages", headers=headers)
-              log(f"API connection test status: {response.status_code}")
-              log(f"API response: {response.text[:100]}...")  # Log first 100 characters of response
+              response = anthropic.completions.create(
+                  model="claude-3-opus-20240229",
+                  max_tokens_to_sample=10,
+                  prompt=f"{HUMAN_PROMPT}Say hello!{AI_PROMPT}"
+              )
+              log(f"API connection test successful. Response: {response.completion}")
           except Exception as e:
               log(f"Error testing API connection: {str(e)}")
 
@@ -68,31 +67,18 @@ jobs:
                   log(f"Error reading file {file}: {str(e)}")
                   continue
 
-              prompt = f"""You are an AI code reviewer. Review the following file: {file}
-
-              Here's the content:
-              {content}
-
-              Please provide a thorough code review, considering:
-              1. Code quality and best practices
-              2. Potential bugs or issues
-              3. Performance considerations
-              4. How well it fits with the overall project structure
-              5. Suggestions for improvement
-
-              Format your review as markdown bullet points."""
+              prompt = f"{HUMAN_PROMPT}You are an AI code reviewer. Review the following file: {file}\n\nHere's the content:\n{content}\n\nPlease provide a thorough code review, considering:\n1. Code quality and best practices\n2. Potential bugs or issues\n3. Performance considerations\n4. How well it fits with the overall project structure\n5. Suggestions for improvement\n\nFormat your review as markdown bullet points.{AI_PROMPT}"
 
               log("Sending request to Anthropic API")
               try:
-                  response = anthropic.messages.create(
-                      model="claude-3-sonnet-20240229",
-                      max_tokens=2000,
-                      messages=[{"role": "user", "content": prompt}]
+                  response = anthropic.completions.create(
+                      model="claude-3-opus-20240229",
+                      max_tokens_to_sample=2000,
+                      prompt=prompt
                   )
                   log("Received response from Anthropic API")
-                  log(f"Response status: {response.status}")
-                  log(f"Response content (first 100 chars): {str(response.content)[:100]}...")
-                  review = response.content[0].text
+                  log(f"Response content (first 100 chars): {response.completion[:100]}...")
+                  review = response.completion
               except Exception as e:
                   log(f"Error calling Anthropic API: {str(e)}")
                   log(f"Error type: {type(e).__name__}")
