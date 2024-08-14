@@ -1,4 +1,4 @@
-name: AI Code Review with Debugging
+name: AI Code Review of All Files
 on: [pull_request]
 
 jobs:
@@ -28,7 +28,6 @@ jobs:
         run: |
           python <<EOF
           import os
-          import glob
           import sys
           from anthropic import Anthropic
 
@@ -60,49 +59,52 @@ jobs:
           log(f"Changed files: {changed_files}")
 
           for file in changed_files:
-              if file.endswith(('.py', '.js', '.java', '.ts', '.css', '.html')):
-                  log(f"Reviewing file: {file}")
+              log(f"Reviewing file: {file}")
+              try:
                   with open(file, 'r') as f:
                       content = f.read()
+              except Exception as e:
+                  log(f"Error reading file {file}: {str(e)}")
+                  continue
 
-                  prompt = f"""You are an AI code reviewer. You have access to the full repository structure.
-                  Repository summary:
-                  {repo_summary}
+              prompt = f"""You are an AI code reviewer. You have access to the full repository structure.
+              Repository summary:
+              {repo_summary}
 
-                  Now, review the following file: {file}
+              Now, review the following file: {file}
 
-                  Here's the content:
-                  {content}
+              Here's the content:
+              {content}
 
-                  Please provide a thorough code review, considering:
-                  1. Code quality and best practices
-                  2. Potential bugs or issues
-                  3. Performance considerations
-                  4. How well it fits with the overall project structure
-                  5. Suggestions for improvement
+              Please provide a thorough code review, considering:
+              1. Code quality and best practices
+              2. Potential bugs or issues
+              3. Performance considerations
+              4. How well it fits with the overall project structure
+              5. Suggestions for improvement
 
-                  Format your review as markdown bullet points."""
+              Format your review as markdown bullet points."""
 
-                  log("Sending request to Anthropic API")
-                  try:
-                      response = anthropic.messages.create(
-                          model="claude-3-sonnet-20240229",
-                          max_tokens=2000,
-                          messages=[{"role": "user", "content": prompt}]
-                      )
-                      log("Received response from Anthropic API")
-                      review = response.content[0].text
-                  except Exception as e:
-                      log(f"Error calling Anthropic API: {str(e)}")
-                      continue
+              log("Sending request to Anthropic API")
+              try:
+                  response = anthropic.messages.create(
+                      model="claude-3-sonnet-20240229",
+                      max_tokens=2000,
+                      messages=[{"role": "user", "content": prompt}]
+                  )
+                  log("Received response from Anthropic API")
+                  review = response.content[0].text
+              except Exception as e:
+                  log(f"Error calling Anthropic API: {str(e)}")
+                  continue
 
-                  log("Posting comment to GitHub")
-                  comment_command = f'gh pr comment ${{ github.event.pull_request.number }} --body "AI Review for {file}:\n{review}"'
-                  result = os.system(comment_command)
-                  if result != 0:
-                      log(f"Error posting comment to GitHub. Exit code: {result}")
-                  else:
-                      log("Comment posted successfully")
+              log("Posting comment to GitHub")
+              comment_command = f'gh pr comment ${{ github.event.pull_request.number }} --body "AI Review for {file}:\n{review}"'
+              result = os.system(comment_command)
+              if result != 0:
+                  log(f"Error posting comment to GitHub. Exit code: {result}")
+              else:
+                  log("Comment posted successfully")
 
           log("AI Code Review completed")
           EOF
