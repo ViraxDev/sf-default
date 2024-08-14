@@ -1,4 +1,4 @@
-name: Contextual AI Code Review with Correct Diff Handling
+name: Contextual AI Code Review with Robust Diff Retrieval
 on:
   workflow_dispatch:
     inputs:
@@ -74,24 +74,27 @@ jobs:
                   log(f"Error posting review comment. Status code: {response.status_code}")
                   log(f"Response content: {response.text}")
 
-          def get_file_content(file_path):
-              try:
-                  with open(file_path, 'r') as file:
-                      return file.read()
-              except Exception as e:
-                  log(f"Error reading file {file_path}: {str(e)}")
-                  return None
-
           def get_project_structure():
               return run_command("tree -L 3 -d")
 
-          def get_changed_files_with_diff(pr_number):
-              files_command = f"gh pr diff {pr_number} --unified 0"
-              diff_output = run_command(files_command)
-              if diff_output is None:
-                  log("Error: Unable to fetch diff")
-                  return None
+          def get_changed_files_with_diff(pr_number, repo):
+              # Try using gh pr diff first
+              diff_output = run_command(f"gh pr diff {pr_number} --unified 0")
           
+              # If gh pr diff fails, use GitHub API
+              if diff_output is None:
+                  log("gh pr diff failed, falling back to GitHub API")
+                  url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
+                  headers = {
+                      "Authorization": f"token {os.environ['GITHUB_TOKEN']}",
+                      "Accept": "application/vnd.github.v3.diff"
+                  }
+                  response = requests.get(url, headers=headers)
+                  if response.status_code != 200:
+                      log(f"Error fetching diff from GitHub API. Status code: {response.status_code}")
+                      return None
+                  diff_output = response.text
+
               files = []
               current_file = None
               current_hunk = []
@@ -115,7 +118,7 @@ jobs:
           
               return files
 
-          log("Starting Contextual AI Code Review with Correct Diff Handling")
+          log("Starting Contextual AI Code Review with Robust Diff Retrieval")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -124,10 +127,10 @@ jobs:
           repo = os.environ['GITHUB_REPOSITORY']
 
           project_structure = get_project_structure()
-          readme_content = get_file_content("README.md") or "No README.md found"
 
-          changed_files = get_changed_files_with_diff(pr_number)
+          changed_files = get_changed_files_with_diff(pr_number, repo)
           if changed_files is None:
+              log("Error: Unable to fetch diff")
               sys.exit(1)
 
           pr_info_command = f"gh pr view {pr_number} --json title,body,commits"
@@ -135,21 +138,12 @@ jobs:
           
           for file in changed_files:
               filename = file['path']
-              content = get_file_content(filename)
-          
-              if content is None:
-                  log(f"Skipping file {filename} due to read error")
-                  continue
-          
               log(f"Reviewing changes in file: {filename}")
 
-              prompt = f"""As an AI code reviewer with full access to the project repository, provide a concise and precise review for the changes in the following file:
+              prompt = f"""As an AI code reviewer, provide a concise and precise review for the changes in the following file:
 
               Project structure:
               {project_structure}
-
-              README preview:
-              {readme_content[:500]}...
 
               Pull Request:
               Title: {pr_info['title']}
@@ -157,8 +151,6 @@ jobs:
               Number of commits: {len(pr_info['commits'])}
 
               File being reviewed: {filename}
-              File content:
-              {content}
 
               Changes:
               {chr(10).join(file['hunks'])}
@@ -206,5 +198,5 @@ jobs:
                       hunk
                   )
 
-          log("Contextual AI Code Review with Correct Diff Handling completed")
+          log("Contextual AI Code Review with Robust Diff Retrieval completed")
           EOF
