@@ -1,4 +1,4 @@
-name: Contextual AI Code Review with Robust Diff Retrieval
+name: Contextual AI Code Review with Correct Review Comment Creation
 on:
   workflow_dispatch:
     inputs:
@@ -53,7 +53,7 @@ jobs:
                   log(f"Command output: {e.output}")
                   return None
 
-          def post_review_comment(repo, pr_number, body, path, commit_id, line, diff_hunk):
+          def create_review_comment(repo, pr_number, body, path, commit_id, position):
               url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/comments"
               headers = {
                   "Authorization": f"token {os.environ['GITHUB_TOKEN']}",
@@ -63,9 +63,7 @@ jobs:
                   "body": body,
                   "path": path,
                   "commit_id": commit_id,
-                  "line": line,
-                  "side": "RIGHT",
-                  "diff_hunk": diff_hunk
+                  "position": position
               }
               response = requests.post(url, headers=headers, json=data)
               if response.status_code == 201:
@@ -78,47 +76,44 @@ jobs:
               return run_command("tree -L 3 -d")
 
           def get_changed_files_with_diff(pr_number, repo):
-              # Try using gh pr diff first
-              diff_output = run_command(f"gh pr diff {pr_number} --unified 0")
-          
-              # If gh pr diff fails, use GitHub API
-              if diff_output is None:
-                  log("gh pr diff failed, falling back to GitHub API")
-                  url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
-                  headers = {
-                      "Authorization": f"token {os.environ['GITHUB_TOKEN']}",
-                      "Accept": "application/vnd.github.v3.diff"
-                  }
-                  response = requests.get(url, headers=headers)
-                  if response.status_code != 200:
-                      log(f"Error fetching diff from GitHub API. Status code: {response.status_code}")
-                      return None
-                  diff_output = response.text
+              url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
+              headers = {
+                  "Authorization": f"token {os.environ['GITHUB_TOKEN']}",
+                  "Accept": "application/vnd.github.v3.diff"
+              }
+              response = requests.get(url, headers=headers)
+              if response.status_code != 200:
+                  log(f"Error fetching diff from GitHub API. Status code: {response.status_code}")
+                  return None
+              diff_output = response.text
 
               files = []
               current_file = None
               current_hunk = []
+              position = 0
           
               for line in diff_output.split('\n'):
+                  position += 1
                   if line.startswith('diff --git'):
                       if current_file:
                           files.append(current_file)
-                      current_file = {'path': line.split()[-1][2:], 'hunks': []}
+                      current_file = {'path': line.split()[-1][2:], 'hunks': [], 'position': position}
                   elif line.startswith('@@'):
                       if current_hunk:
-                          current_file['hunks'].append('\n'.join(current_hunk))
+                          current_file['hunks'].append({'content': '\n'.join(current_hunk), 'position': current_file['position']})
                           current_hunk = []
                       current_hunk = [line]
+                      current_file['position'] = position
                   elif current_hunk:
                       current_hunk.append(line)
           
               if current_file and current_hunk:
-                  current_file['hunks'].append('\n'.join(current_hunk))
+                  current_file['hunks'].append({'content': '\n'.join(current_hunk), 'position': current_file['position']})
                   files.append(current_file)
           
               return files
 
-          log("Starting Contextual AI Code Review with Robust Diff Retrieval")
+          log("Starting Contextual AI Code Review with Correct Review Comment Creation")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -153,7 +148,7 @@ jobs:
               File being reviewed: {filename}
 
               Changes:
-              {chr(10).join(file['hunks'])}
+              {chr(10).join([hunk['content'] for hunk in file['hunks']])}
 
               Focus on:
               1. Code quality and adherence to project standards
@@ -185,18 +180,14 @@ jobs:
                   continue
 
               log("Posting review comment on GitHub")
-              for hunk in file['hunks']:
-                  hunk_lines = hunk.split('\n')
-                  line_number = int(hunk_lines[0].split('+')[1].split(',')[0])
-                  post_review_comment(
-                      repo,
-                      pr_number,
-                      review,
-                      filename,
-                      pr_info['commits'][-1]['oid'],
-                      line_number,
-                      hunk
-                  )
+              create_review_comment(
+                  repo,
+                  pr_number,
+                  review,
+                  filename,
+                  pr_info['commits'][-1]['oid'],
+                  file['position']
+              )
 
-          log("Contextual AI Code Review with Robust Diff Retrieval completed")
+          log("Contextual AI Code Review with Correct Review Comment Creation completed")
           EOF
