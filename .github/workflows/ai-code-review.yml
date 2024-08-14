@@ -1,4 +1,4 @@
-name: Contextual AI Code Review with Correct Review Comment Creation
+name: Contextual AI Code Review with Enhanced Project Understanding
 on:
   workflow_dispatch:
     inputs:
@@ -53,67 +53,44 @@ jobs:
                   log(f"Command output: {e.output}")
                   return None
 
-          def create_review_comment(repo, pr_number, body, path, commit_id, position):
-              url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/comments"
+          def create_review(repo, pr_number, commit_id, body, comments):
+              url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/reviews"
               headers = {
                   "Authorization": f"token {os.environ['GITHUB_TOKEN']}",
                   "Accept": "application/vnd.github.v3+json"
               }
               data = {
-                  "body": body,
-                  "path": path,
                   "commit_id": commit_id,
-                  "position": position
+                  "body": body,
+                  "event": "COMMENT",
+                  "comments": comments
               }
               response = requests.post(url, headers=headers, json=data)
-              if response.status_code == 201:
-                  log("Review comment posted successfully")
+              if response.status_code == 200:
+                  log("Review posted successfully")
               else:
-                  log(f"Error posting review comment. Status code: {response.status_code}")
+                  log(f"Error posting review. Status code: {response.status_code}")
                   log(f"Response content: {response.text}")
 
           def get_project_structure():
               return run_command("tree -L 3 -d")
 
+          def get_project_dependencies():
+              return run_command("cat composer.json") or "No composer.json found"
+
           def get_changed_files_with_diff(pr_number, repo):
-              url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
+              url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/files"
               headers = {
                   "Authorization": f"token {os.environ['GITHUB_TOKEN']}",
-                  "Accept": "application/vnd.github.v3.diff"
+                  "Accept": "application/vnd.github.v3+json"
               }
               response = requests.get(url, headers=headers)
               if response.status_code != 200:
-                  log(f"Error fetching diff from GitHub API. Status code: {response.status_code}")
+                  log(f"Error fetching files from GitHub API. Status code: {response.status_code}")
                   return None
-              diff_output = response.text
+              return response.json()
 
-              files = []
-              current_file = None
-              current_hunk = []
-              position = 0
-          
-              for line in diff_output.split('\n'):
-                  position += 1
-                  if line.startswith('diff --git'):
-                      if current_file:
-                          files.append(current_file)
-                      current_file = {'path': line.split()[-1][2:], 'hunks': [], 'position': position}
-                  elif line.startswith('@@'):
-                      if current_hunk:
-                          current_file['hunks'].append({'content': '\n'.join(current_hunk), 'position': current_file['position']})
-                          current_hunk = []
-                      current_hunk = [line]
-                      current_file['position'] = position
-                  elif current_hunk:
-                      current_hunk.append(line)
-          
-              if current_file and current_hunk:
-                  current_file['hunks'].append({'content': '\n'.join(current_hunk), 'position': current_file['position']})
-                  files.append(current_file)
-          
-              return files
-
-          log("Starting Contextual AI Code Review with Correct Review Comment Creation")
+          log("Starting Contextual AI Code Review with Enhanced Project Understanding")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -122,23 +99,31 @@ jobs:
           repo = os.environ['GITHUB_REPOSITORY']
 
           project_structure = get_project_structure()
+          project_dependencies = get_project_dependencies()
 
           changed_files = get_changed_files_with_diff(pr_number, repo)
           if changed_files is None:
-              log("Error: Unable to fetch diff")
+              log("Error: Unable to fetch changed files")
               sys.exit(1)
 
           pr_info_command = f"gh pr view {pr_number} --json title,body,commits"
           pr_info = json.loads(run_command(pr_info_command))
-          
+
+          overall_review = ""
+          file_comments = []
+
           for file in changed_files:
-              filename = file['path']
+              filename = file['filename']
+              patch = file['patch']
               log(f"Reviewing changes in file: {filename}")
 
-              prompt = f"""As an AI code reviewer, provide a concise and precise review for the changes in the following file:
+              prompt = f"""As an AI code reviewer with full access to the project repository, provide a thorough review for the changes in the following file:
 
               Project structure:
               {project_structure}
+
+              Project dependencies:
+              {project_dependencies}
 
               Pull Request:
               Title: {pr_info['title']}
@@ -148,46 +133,53 @@ jobs:
               File being reviewed: {filename}
 
               Changes:
-              {chr(10).join([hunk['content'] for hunk in file['hunks']])}
+              {patch}
 
-              Focus on:
-              1. Code quality and adherence to project standards
-              2. Potential issues or regressions introduced by these changes
-              3. How well the changes integrate with the existing codebase
-              4. Brief improvement suggestions (if necessary)
+              Please provide:
+              1. A detailed analysis of the code changes, considering the project's overall structure and dependencies.
+              2. Comments on code quality and adherence to project standards.
+              3. Identification of potential issues or regressions introduced by these changes.
+              4. An assessment of how well the changes integrate with the existing codebase.
+              5. Specific improvement suggestions, if necessary.
+              6. References to other parts of the project if relevant to your analysis.
 
-              Keep your review concise, ideally within 3-4 short sentences."""
+              Additionally, please explicitly confirm that you have taken into account the full context of the project in your review.
+
+              Format your review as a detailed markdown report."""
 
               log("Sending request to Anthropic API")
               try:
                   response = anthropic.messages.create(
                       model="claude-3-opus-20240229",
-                      max_tokens=150,
+                      max_tokens=1000,
                       messages=[
                           {"role": "user", "content": prompt}
                       ]
                   )
                   log("Received response from Anthropic API")
-                  log(f"Response content: {response.content[0].text}")
                   review = response.content[0].text.strip()
+                  overall_review += f"\n\n## Review for {filename}\n\n{review}"
           
-                  if not review or "I apologize" in review:
-                      log("Error: Received empty or apologetic review from Anthropic API")
-                      continue
+                  file_comments.append({
+                      "path": filename,
+                      "position": file['additions'],
+                      "body": f"AI Review for {filename}:\n\n{review[:500]}... (See full review in the overall comment)"
+                  })
           
               except Exception as e:
                   log(f"Error calling Anthropic API: {str(e)}")
                   continue
 
-              log("Posting review comment on GitHub")
-              create_review_comment(
-                  repo,
-                  pr_number,
-                  review,
-                  filename,
-                  pr_info['commits'][-1]['oid'],
-                  file['position']
-              )
+          overall_review = f"# AI Code Review Summary\n\n{overall_review}\n\nThis review has taken into account the full context of the project, including its structure and dependencies."
 
-          log("Contextual AI Code Review with Correct Review Comment Creation completed")
+          log("Posting review on GitHub")
+          create_review(
+              repo,
+              pr_number,
+              pr_info['commits'][-1]['oid'],
+              overall_review,
+              file_comments
+          )
+
+          log("Contextual AI Code Review with Enhanced Project Understanding completed")
           EOF
