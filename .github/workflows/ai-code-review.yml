@@ -1,4 +1,4 @@
-name: AI Code Review with Full Context
+name: AI Code Review with Debugging
 on: [pull_request]
 
 jobs:
@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # This will fetch the entire repository history
+          fetch-depth: 0
 
       - name: Get changed files
         id: changed-files
@@ -24,13 +24,23 @@ jobs:
       - name: AI Code Review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python <<EOF
           import os
           import glob
+          import sys
           from anthropic import Anthropic
 
+          def log(message):
+              print(f"DEBUG: {message}")
+              sys.stdout.flush()
+
+          log("Starting AI Code Review")
+
           anthropic = Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
+          
+          log(f"Anthropic API Key (first 5 chars): {os.environ['ANTHROPIC_API_KEY'][:5]}...")
 
           def get_repo_summary():
               summary = "Repository structure:\n"
@@ -44,11 +54,14 @@ jobs:
               return summary
 
           repo_summary = get_repo_summary()
+          log("Repository summary generated")
 
           changed_files = "${{ steps.changed-files.outputs.all_changed_files }}".split()
+          log(f"Changed files: {changed_files}")
 
           for file in changed_files:
               if file.endswith(('.py', '.js', '.java', '.ts', '.css', '.html')):
+                  log(f"Reviewing file: {file}")
                   with open(file, 'r') as f:
                       content = f.read()
 
@@ -70,14 +83,26 @@ jobs:
 
                   Format your review as markdown bullet points."""
 
-                  response = anthropic.messages.create(
-                      model="claude-3-sonnet-20240229",
-                      max_tokens=2000,
-                      messages=[{"role": "user", "content": prompt}]
-                  )
+                  log("Sending request to Anthropic API")
+                  try:
+                      response = anthropic.messages.create(
+                          model="claude-3-sonnet-20240229",
+                          max_tokens=2000,
+                          messages=[{"role": "user", "content": prompt}]
+                      )
+                      log("Received response from Anthropic API")
+                      review = response.content[0].text
+                  except Exception as e:
+                      log(f"Error calling Anthropic API: {str(e)}")
+                      continue
 
-                  review = response.content[0].text
+                  log("Posting comment to GitHub")
+                  comment_command = f'gh pr comment ${{ github.event.pull_request.number }} --body "AI Review for {file}:\n{review}"'
+                  result = os.system(comment_command)
+                  if result != 0:
+                      log(f"Error posting comment to GitHub. Exit code: {result}")
+                  else:
+                      log("Comment posted successfully")
 
-                  os.system(f'gh pr comment ${{ github.event.pull_request.number }} --body "AI Review for {file}:\n{review}"')
-
+          log("AI Code Review completed")
           EOF
