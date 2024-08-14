@@ -1,5 +1,10 @@
-name: AI Code Review with Full Context
-on: [pull_request]
+name: Manual AI Code Review
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request number to review'
+        required: true
 
 jobs:
   ai-review:
@@ -7,11 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # This will fetch the entire repository history
+          fetch-depth: 0
 
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v14
+        with:
+          pr_number: ${{ github.event.inputs.pr_number }}
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -24,60 +31,81 @@ jobs:
       - name: AI Code Review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python <<EOF
           import os
-          import glob
+          import sys
           from anthropic import Anthropic
 
-          anthropic = Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
+          def log(message):
+              print(f"DEBUG: {message}")
+              sys.stdout.flush()
 
-          def get_repo_summary():
-              summary = "Repository structure:\n"
-              for root, dirs, files in os.walk('.'):
-                  if '.git' in dirs:
-                      dirs.remove('.git')
-                  path = root.split(os.sep)
-                  summary += (len(path) - 1) * '  ' + os.path.basename(root) + '/\n'
-                  for file in files:
-                      summary += len(path) * '  ' + file + '\n'
-              return summary
+          log("Starting AI Code Review")
 
-          repo_summary = get_repo_summary()
+          api_key = os.environ['ANTHROPIC_API_KEY']
+          anthropic = Anthropic(api_key=api_key)
+          
+          log(f"Anthropic API Key (first 5 chars): {api_key[:5]}...")
 
+          # Test API connection
+          try:
+              response = anthropic.messages.create(
+                  model="claude-3-opus-20240229",
+                  max_tokens=10,
+                  messages=[
+                      {"role": "user", "content": "Say hello!"}
+                  ]
+              )
+              log(f"API connection test successful. Response: {response.content[0].text}")
+          except Exception as e:
+              log(f"Error testing API connection: {str(e)}")
+
+          # Define changed_files
           changed_files = "${{ steps.changed-files.outputs.all_changed_files }}".split()
+          log(f"Changed files: {changed_files}")
+
+          pr_number = "${{ github.event.inputs.pr_number }}"
 
           for file in changed_files:
-              if file.endswith(('.py', '.js', '.java', '.ts', '.css', '.html')):
+              log(f"Reviewing file: {file}")
+              try:
                   with open(file, 'r') as f:
                       content = f.read()
+              except Exception as e:
+                  log(f"Error reading file {file}: {str(e)}")
+                  continue
 
-                  prompt = f"""You are an AI code reviewer. You have access to the full repository structure.
-                  Repository summary:
-                  {repo_summary}
+              prompt = f"You are an AI code reviewer. Review the following file: {file}\n\nHere's the content:\n{content}\n\nPlease provide a thorough code review, considering:\n1. Code quality and best practices\n2. Potential bugs or issues\n3. Performance considerations\n4. How well it fits with the overall project structure\n5. Suggestions for improvement\n\nFormat your review as markdown bullet points."
 
-                  Now, review the following file: {file}
-
-                  Here's the content:
-                  {content}
-
-                  Please provide a thorough code review, considering:
-                  1. Code quality and best practices
-                  2. Potential bugs or issues
-                  3. Performance considerations
-                  4. How well it fits with the overall project structure
-                  5. Suggestions for improvement
-
-                  Format your review as markdown bullet points."""
-
+              log("Sending request to Anthropic API")
+              try:
                   response = anthropic.messages.create(
-                      model="claude-3-sonnet-20240229",
+                      model="claude-3-opus-20240229",
                       max_tokens=2000,
-                      messages=[{"role": "user", "content": prompt}]
+                      messages=[
+                          {"role": "user", "content": prompt}
+                      ]
                   )
-
+                  log("Received response from Anthropic API")
+                  log(f"Response content (first 100 chars): {response.content[0].text[:100]}...")
                   review = response.content[0].text
+              except Exception as e:
+                  log(f"Error calling Anthropic API: {str(e)}")
+                  log(f"Error type: {type(e).__name__}")
+                  if hasattr(e, 'response'):
+                      log(f"Response status code: {e.response.status_code}")
+                      log(f"Response content: {e.response.text}")
+                  continue
 
-                  os.system(f'gh pr comment ${{ github.event.pull_request.number }} --body "AI Review for {file}:\n{review}"')
+              log("Posting comment to GitHub")
+              comment_command = f'gh pr comment {pr_number} --body "**AI Review for `{file}`:**\n\n{review}"'
+              result = os.system(comment_command)
+              if result != 0:
+                  log(f"Error posting comment to GitHub. Exit code: {result}")
+              else:
+                  log("Comment posted successfully")
 
+          log("AI Code Review completed")
           EOF
