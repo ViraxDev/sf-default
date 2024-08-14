@@ -1,4 +1,4 @@
-name: AI Code Review with src Context
+name: AI Code Review with Precise Line Comments
 on:
   workflow_dispatch:
     inputs:
@@ -101,7 +101,20 @@ jobs:
                   return None
               return response.json()
 
-          log("Starting AI Code Review with src Context")
+          def parse_patch(patch):
+              lines = patch.split('\n')
+              changes = []
+              current_line = 0
+              for line in lines:
+                  if line.startswith('@@'):
+                      current_line = int(line.split('+')[1].split(',')[0]) - 1
+                  elif line.startswith('+'):
+                      changes.append((current_line, line[1:]))
+                  if not line.startswith('-'):
+                      current_line += 1
+              return changes
+
+          log("Starting AI Code Review with Precise Line Comments")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -124,59 +137,61 @@ jobs:
           for file in changed_files:
               filename = file['filename']
               patch = file['patch']
+              changes = parse_patch(patch)
               log(f"Reviewing changes in file: {filename}")
 
-              prompt = f"""As an AI code reviewer with access to the src directory of the project, provide a concise and precise review for the changes in the following file:
+              for line_number, change in changes:
+                  prompt = f"""As an AI code reviewer with access to the src directory of the project, provide a concise and precise review for the following change:
 
-              Project Context: {project_context}
+                  Project Context: {project_context}
 
-              Pull Request:
-              Title: {pr_info['title']}
-              Description: {pr_info['body']}
-              Number of commits: {len(pr_info['commits'])}
+                  Pull Request:
+                  Title: {pr_info['title']}
+                  Description: {pr_info['body']}
+                  Number of commits: {len(pr_info['commits'])}
 
-              File being reviewed: {filename}
-              Changes:
-              {patch}
+                  File being reviewed: {filename}
+                  Line number: {line_number}
+                  Change: {change}
 
-              Provide a brief, focused review that:
-              1. Addresses code quality and potential issues
-              2. Considers project standards and existing codebase
-              3. Suggests improvements if necessary
-              4. Identifies any potential conflicts or inconsistencies with other parts of the project
+                  Provide a brief, focused review that:
+                  1. Addresses code quality and potential issues
+                  2. Considers project standards and existing codebase
+                  3. Suggests improvements if necessary
+                  4. Identifies any potential conflicts or inconsistencies with other parts of the project
 
-              Keep your review under 100 words, without any titles or unnecessary formatting."""
+                  Keep your review under 100 words, without any titles or unnecessary formatting."""
 
-              log("Sending request to Anthropic API")
-              try:
-                  response = anthropic.messages.create(
-                      model="claude-3-opus-20240229",
-                      max_tokens=150,
-                      messages=[
-                          {"role": "user", "content": prompt}
-                      ]
-                  )
-                  log("Received response from Anthropic API")
-                  review = response.content[0].text.strip()
+                  log(f"Sending request to Anthropic API for line {line_number}")
+                  try:
+                      response = anthropic.messages.create(
+                          model="claude-3-opus-20240229",
+                          max_tokens=150,
+                          messages=[
+                              {"role": "user", "content": prompt}
+                          ]
+                      )
+                      log("Received response from Anthropic API")
+                      review = response.content[0].text.strip()
           
-                  file_comments.append({
-                      "path": filename,
-                      "position": file['additions'],
-                      "body": review
-                  })
+                      file_comments.append({
+                          "path": filename,
+                          "line": line_number,
+                          "body": review
+                      })
           
-              except Exception as e:
-                  log(f"Error calling Anthropic API: {str(e)}")
-                  continue
+                  except Exception as e:
+                      log(f"Error calling Anthropic API: {str(e)}")
+                      continue
 
           log("Posting review on GitHub")
           create_review(
               repo,
               pr_number,
               pr_info['commits'][-1]['oid'],
-              "AI Code Review completed. See individual file comments for details.",
+              "AI Code Review completed. See individual line comments for details.",
               file_comments
           )
 
-          log("AI Code Review with src Context completed")
+          log("AI Code Review with Precise Line Comments completed")
           EOF
