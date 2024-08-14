@@ -1,4 +1,4 @@
-name: Contextual AI Code Review with Enhanced Project Understanding
+name: Concise Contextual AI Code Review
 on:
   workflow_dispatch:
     inputs:
@@ -72,11 +72,11 @@ jobs:
                   log(f"Error posting review. Status code: {response.status_code}")
                   log(f"Response content: {response.text}")
 
-          def get_project_structure():
-              return run_command("tree -L 3 -d")
-
-          def get_project_dependencies():
-              return run_command("cat composer.json") or "No composer.json found"
+          def get_project_context():
+              structure = run_command("tree -L 3 -d")
+              dependencies = run_command("cat composer.json") or "No composer.json found"
+              readme = run_command("cat README.md") or "No README.md found"
+              return f"Project structure:\n{structure}\n\nDependencies:\n{dependencies}\n\nREADME:\n{readme[:500]}..."
 
           def get_changed_files_with_diff(pr_number, repo):
               url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/files"
@@ -90,7 +90,7 @@ jobs:
                   return None
               return response.json()
 
-          log("Starting Contextual AI Code Review with Enhanced Project Understanding")
+          log("Starting Concise Contextual AI Code Review")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -98,8 +98,7 @@ jobs:
           pr_number = os.environ['PR_NUMBER']
           repo = os.environ['GITHUB_REPOSITORY']
 
-          project_structure = get_project_structure()
-          project_dependencies = get_project_dependencies()
+          project_context = get_project_context()
 
           changed_files = get_changed_files_with_diff(pr_number, repo)
           if changed_files is None:
@@ -109,7 +108,6 @@ jobs:
           pr_info_command = f"gh pr view {pr_number} --json title,body,commits"
           pr_info = json.loads(run_command(pr_info_command))
 
-          overall_review = ""
           file_comments = []
 
           for file in changed_files:
@@ -117,69 +115,57 @@ jobs:
               patch = file['patch']
               log(f"Reviewing changes in file: {filename}")
 
-              prompt = f"""As an AI code reviewer with full access to the project repository, provide a thorough review for the changes in the following file:
+              prompt = f"""As an AI code reviewer, provide a concise and precise review for the changes in the following file, considering the full project context:
 
-              Project structure:
-              {project_structure}
-
-              Project dependencies:
-              {project_dependencies}
+              Project Context:
+              {project_context}
 
               Pull Request:
               Title: {pr_info['title']}
               Description: {pr_info['body']}
               Number of commits: {len(pr_info['commits'])}
 
-              File being reviewed: {filename}
-
+              File: {filename}
               Changes:
               {patch}
 
-              Please provide:
-              1. A detailed analysis of the code changes, considering the project's overall structure and dependencies.
-              2. Comments on code quality and adherence to project standards.
-              3. Identification of potential issues or regressions introduced by these changes.
-              4. An assessment of how well the changes integrate with the existing codebase.
-              5. Specific improvement suggestions, if necessary.
-              6. References to other parts of the project if relevant to your analysis.
+              Provide a brief, focused review that:
+              1. Addresses code quality and potential issues
+              2. Considers project standards and existing codebase
+              3. Suggests improvements if necessary
 
-              Additionally, please explicitly confirm that you have taken into account the full context of the project in your review.
-
-              Format your review as a detailed markdown report."""
+              Keep your review under 100 words, without any titles or unnecessary formatting."""
 
               log("Sending request to Anthropic API")
               try:
                   response = anthropic.messages.create(
                       model="claude-3-opus-20240229",
-                      max_tokens=1000,
+                      max_tokens=150,
                       messages=[
                           {"role": "user", "content": prompt}
                       ]
                   )
                   log("Received response from Anthropic API")
                   review = response.content[0].text.strip()
-                  overall_review += f"\n\n## Review for {filename}\n\n{review}"
           
                   file_comments.append({
                       "path": filename,
                       "position": file['additions'],
-                      "body": f"AI Review for {filename}:\n\n{review[:500]}... (See full review in the overall comment)"
+                      "body": review
                   })
           
               except Exception as e:
                   log(f"Error calling Anthropic API: {str(e)}")
                   continue
 
-          overall_review = f"# AI Code Review Summary\n\n{overall_review}\n\nThis review has taken into account the full context of the project, including its structure and dependencies."
-
           log("Posting review on GitHub")
           create_review(
               repo,
               pr_number,
               pr_info['commits'][-1]['oid'],
-              overall_review,
+              "AI Code Review completed. See individual file comments for details.",
               file_comments
           )
 
-          log("Contextual AI Code Review with Enhanced Project Understanding completed")
+          log("Concise Contextual AI Code Review completed")
           EOF
