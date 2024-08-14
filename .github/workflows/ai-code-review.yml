@@ -1,4 +1,4 @@
-name: AI Code Review with Enhanced API Debugging
+name: AI Code Review with Fixed API Test and Variable Definition
 on: [pull_request]
 
 jobs:
@@ -49,18 +49,39 @@ jobs:
                   "x-api-key": api_key,
                   "content-type": "application/json"
               }
-              response = requests.get("https://api.anthropic.com/v1/models", headers=headers)
+              response = requests.get("https://api.anthropic.com/v1/messages", headers=headers)
               log(f"API connection test status: {response.status_code}")
               log(f"API response: {response.text[:100]}...")  # Log first 100 characters of response
           except Exception as e:
               log(f"Error testing API connection: {str(e)}")
 
-          # Rest of the script remains the same...
-          
-          # In the main loop where we call the API:
+          # Define changed_files
+          changed_files = "${{ steps.changed-files.outputs.all_changed_files }}".split()
+          log(f"Changed files: {changed_files}")
+
           for file in changed_files:
-              # ... (previous code)
-          
+              log(f"Reviewing file: {file}")
+              try:
+                  with open(file, 'r') as f:
+                      content = f.read()
+              except Exception as e:
+                  log(f"Error reading file {file}: {str(e)}")
+                  continue
+
+              prompt = f"""You are an AI code reviewer. Review the following file: {file}
+
+              Here's the content:
+              {content}
+
+              Please provide a thorough code review, considering:
+              1. Code quality and best practices
+              2. Potential bugs or issues
+              3. Performance considerations
+              4. How well it fits with the overall project structure
+              5. Suggestions for improvement
+
+              Format your review as markdown bullet points."""
+
               log("Sending request to Anthropic API")
               try:
                   response = anthropic.messages.create(
@@ -80,7 +101,13 @@ jobs:
                       log(f"Response content: {e.response.text}")
                   continue
 
-              # ... (rest of the code)
+              log("Posting comment to GitHub")
+              comment_command = f'gh pr comment ${{ github.event.pull_request.number }} --body "AI Review for {file}:\n{review}"'
+              result = os.system(comment_command)
+              if result != 0:
+                  log(f"Error posting comment to GitHub. Exit code: {result}")
+              else:
+                  log("Comment posted successfully")
 
           log("AI Code Review completed")
           EOF
