@@ -14,12 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v14
-        with:
-          pr_number: ${{ github.event.inputs.pr_number }}
-
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -42,6 +36,7 @@ jobs:
           import subprocess
           import base64
           import time
+          import json
           from anthropic import Anthropic
 
           def log(message):
@@ -96,22 +91,34 @@ jobs:
               log(f"Error testing API connection: {str(e)}")
               sys.exit(1)
 
-          # Define changed_files
-          changed_files = "${{ steps.changed-files.outputs.all_changed_files }}".split()
-          log(f"Changed files: {changed_files}")
-
+          # Get changed files
           pr_number = os.environ['PR_NUMBER']
+          log(f"Fetching changed files for PR #{pr_number}")
+          
+          changed_files_command = f"gh pr view {pr_number} --json files --jq '.files[].path'"
+          changed_files_output = run_command(changed_files_command)
+          
+          if changed_files_output is None:
+              log("Error: Unable to fetch changed files")
+              sys.exit(1)
+          
+          changed_files = changed_files_output.split('\n')
+          log(f"Changed files: {changed_files}")
 
           for file in changed_files:
               log(f"Reviewing file: {file}")
-              try:
-                  with open(file, 'r') as f:
-                      content = f.read()
-              except Exception as e:
-                  log(f"Error reading file {file}: {str(e)}")
+          
+              # Fetch file content
+              file_content_command = f"gh pr view {pr_number} --file {file}"
+              file_content = run_command(file_content_command)
+          
+              if file_content is None:
+                  log(f"Error: Unable to fetch content for file {file}")
                   continue
 
-              prompt = f"You are an AI code reviewer. Review the following file: {file}\n\nHere's the content:\n{content}\n\nPlease provide a thorough code review, considering:\n1. Code quality and best practices\n2. Potential bugs or issues\n3. Performance considerations\n4. How well it fits with the overall project structure\n5. Suggestions for improvement\n\nFormat your review as markdown bullet points."
+              log(f"File content (first 100 chars): {file_content[:100]}...")
+
+              prompt = f"You are an AI code reviewer. Review the following file: {file}\n\nHere's the content:\n{file_content}\n\nPlease provide a thorough code review, considering:\n1. Code quality and best practices\n2. Potential bugs or issues\n3. Performance considerations\n4. How well it fits with the overall project structure\n5. Suggestions for improvement\n\nFormat your review as markdown bullet points."
 
               log("Sending request to Anthropic API")
               try:
