@@ -1,4 +1,4 @@
-name: Concise and Precise AI Code Review
+name: Improved Concise and Precise AI Code Review
 on:
   workflow_dispatch:
     inputs:
@@ -73,19 +73,19 @@ jobs:
                   log(f"Error posting review comment. Status code: {response.status_code}")
                   log(f"Response content: {response.text}")
 
-          def get_changed_lines(patch):
+          def get_changed_lines_with_content(patch):
               lines = []
               current_line = 0
               for line in patch.split('\n'):
                   if line.startswith('@@'):
                       current_line = int(line.split('+')[1].split(',')[0]) - 1
-                  elif line.startswith('+'):
-                      lines.append(current_line)
+                  elif line.startswith('+') and not line.startswith('+++'):
+                      lines.append((current_line, line[1:].strip()))
                   if not line.startswith('-'):
                       current_line += 1
               return lines
 
-          log("Starting Concise and Precise AI Code Review")
+          log("Starting Improved Concise and Precise AI Code Review")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -131,14 +131,14 @@ jobs:
               log(f"Reviewing changes in file: {filename}")
               log(f"Patch preview (first 100 chars): {patch[:100]}...")
 
-              changed_lines = get_changed_lines(patch)
+              changed_lines = get_changed_lines_with_content(patch)
           
-              for line in changed_lines:
+              for line, content in changed_lines:
                   prompt = f"""As an AI code reviewer, provide a concise and precise review for the following change:
 
                   File: {filename}
                   Line: {line}
-                  Change: {next((l for l in patch.split('\n') if l.startswith('+') and not l.startswith('+++')), 'No specific line found')}
+                  Change: {content}
 
                   Focus on:
                   1. Code quality
@@ -160,8 +160,8 @@ jobs:
                       log(f"Response content: {response.content[0].text}")
                       review = response.content[0].text.strip()
           
-                      if not review:
-                          log("Error: Received empty review from Anthropic API")
+                      if not review or "I apologize" in review:
+                          log("Error: Received empty or apologetic review from Anthropic API")
                           continue
           
                   except Exception as e:
@@ -182,5 +182,5 @@ jobs:
                       line
                   )
 
-          log("Concise and Precise AI Code Review completed")
+          log("Improved Concise and Precise AI Code Review completed")
           EOF
