@@ -1,4 +1,4 @@
-name: Contextual AI Code Review with Full Repository Access
+name: Contextual AI Code Review with Correct Diff Handling
 on:
   workflow_dispatch:
     inputs:
@@ -53,7 +53,7 @@ jobs:
                   log(f"Command output: {e.output}")
                   return None
 
-          def post_review_comment(repo, pr_number, body, path, commit_id, line):
+          def post_review_comment(repo, pr_number, body, path, commit_id, line, diff_hunk):
               url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/comments"
               headers = {
                   "Authorization": f"token {os.environ['GITHUB_TOKEN']}",
@@ -64,7 +64,8 @@ jobs:
                   "path": path,
                   "commit_id": commit_id,
                   "line": line,
-                  "side": "RIGHT"
+                  "side": "RIGHT",
+                  "diff_hunk": diff_hunk
               }
               response = requests.post(url, headers=headers, json=data)
               if response.status_code == 201:
@@ -84,21 +85,37 @@ jobs:
           def get_project_structure():
               return run_command("tree -L 3 -d")
 
-          def get_changed_files_with_content(pr_number):
-              files_command = f"gh pr view {pr_number} --json files"
-              files_output = run_command(files_command)
-              if files_output is None:
-                  log("Error: Unable to fetch changed files")
+          def get_changed_files_with_diff(pr_number):
+              files_command = f"gh pr diff {pr_number} --unified 0"
+              diff_output = run_command(files_command)
+              if diff_output is None:
+                  log("Error: Unable to fetch diff")
                   return None
           
-              changed_files = json.loads(files_output)['files']
+              files = []
+              current_file = None
+              current_hunk = []
           
-              for file in changed_files:
-                  file['content'] = get_file_content(file['path'])
+              for line in diff_output.split('\n'):
+                  if line.startswith('diff --git'):
+                      if current_file:
+                          files.append(current_file)
+                      current_file = {'path': line.split()[-1][2:], 'hunks': []}
+                  elif line.startswith('@@'):
+                      if current_hunk:
+                          current_file['hunks'].append('\n'.join(current_hunk))
+                          current_hunk = []
+                      current_hunk = [line]
+                  elif current_hunk:
+                      current_hunk.append(line)
           
-              return changed_files
+              if current_file and current_hunk:
+                  current_file['hunks'].append('\n'.join(current_hunk))
+                  files.append(current_file)
+          
+              return files
 
-          log("Starting Contextual AI Code Review with Full Repository Access")
+          log("Starting Contextual AI Code Review with Correct Diff Handling")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -109,7 +126,7 @@ jobs:
           project_structure = get_project_structure()
           readme_content = get_file_content("README.md") or "No README.md found"
 
-          changed_files = get_changed_files_with_content(pr_number)
+          changed_files = get_changed_files_with_diff(pr_number)
           if changed_files is None:
               sys.exit(1)
 
@@ -118,7 +135,7 @@ jobs:
           
           for file in changed_files:
               filename = file['path']
-              content = file['content']
+              content = get_file_content(filename)
           
               if content is None:
                   log(f"Skipping file {filename} due to read error")
@@ -142,6 +159,9 @@ jobs:
               File being reviewed: {filename}
               File content:
               {content}
+
+              Changes:
+              {chr(10).join(file['hunks'])}
 
               Focus on:
               1. Code quality and adherence to project standards
@@ -173,14 +193,18 @@ jobs:
                   continue
 
               log("Posting review comment on GitHub")
-              post_review_comment(
-                  repo,
-                  pr_number,
-                  review,
-                  filename,
-                  pr_info['commits'][-1]['oid'],
-                  file['additions']
-              )
+              for hunk in file['hunks']:
+                  hunk_lines = hunk.split('\n')
+                  line_number = int(hunk_lines[0].split('+')[1].split(',')[0])
+                  post_review_comment(
+                      repo,
+                      pr_number,
+                      review,
+                      filename,
+                      pr_info['commits'][-1]['oid'],
+                      line_number,
+                      hunk
+                  )
 
-          log("Contextual AI Code Review with Full Repository Access completed")
+          log("Contextual AI Code Review with Correct Diff Handling completed")
           EOF
