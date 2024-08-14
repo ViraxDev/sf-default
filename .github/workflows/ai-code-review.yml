@@ -1,4 +1,4 @@
-name: Improved Concise and Precise AI Code Review
+name: AI Code Review
 on:
   workflow_dispatch:
     inputs:
