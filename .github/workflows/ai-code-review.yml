@@ -1,4 +1,4 @@
-name: Manual AI Code Review
+name: Contextual AI Code Review
 on:
   workflow_dispatch:
     inputs:
@@ -68,7 +68,7 @@ jobs:
                       time.sleep(delay)
                       delay = min(delay * 2, max_delay)
 
-          log("Starting AI Code Review")
+          log("Starting Contextual AI Code Review")
 
           api_key = os.environ['ANTHROPIC_API_KEY']
           anthropic = Anthropic(api_key=api_key)
@@ -92,35 +92,61 @@ jobs:
               log(f"Error testing API connection: {str(e)}")
               sys.exit(1)
 
-          # Get changed files
+          # Get project context
+          log("Fetching project context")
+          project_structure = run_command("tree -L 3 -d")
+          readme_content = run_command("cat README.md") or "No README.md found"
+          
+          # Get changed files and their patches
           pr_number = os.environ['PR_NUMBER']
           repo = os.environ['GITHUB_REPOSITORY']
-          log(f"Fetching changed files for PR #{pr_number} in repository {repo}")
+          log(f"Fetching changes for PR #{pr_number} in repository {repo}")
           
-          changed_files_command = f"gh api repos/{repo}/pulls/{pr_number}/files --jq '.[].filename'"
-          changed_files_output = run_command(changed_files_command)
+          pr_info_command = f"gh api repos/{repo}/pulls/{pr_number}"
+          pr_info = json.loads(run_command(pr_info_command))
+          pr_title = pr_info['title']
+          pr_description = pr_info['body'] or "No description provided"
           
-          if changed_files_output is None:
+          files_command = f"gh api repos/{repo}/pulls/{pr_number}/files"
+          files_output = run_command(files_command)
+          
+          if files_output is None:
               log("Error: Unable to fetch changed files")
               sys.exit(1)
           
-          changed_files = changed_files_output.split('\n')
-          log(f"Changed files: {changed_files}")
-
+          changed_files = json.loads(files_output)
+          
           for file in changed_files:
-              log(f"Reviewing file: {file}")
+              filename = file['filename']
+              patch = file['patch']
           
-              # Fetch file content
-              file_content_command = f"gh api repos/{repo}/contents/{file} --jq '.content' | base64 -d"
-              file_content = run_command(file_content_command)
-          
-              if file_content is None:
-                  log(f"Error: Unable to fetch content for file {file}")
-                  continue
+              log(f"Reviewing changes in file: {filename}")
+              log(f"Patch preview (first 100 chars): {patch[:100]}...")
 
-              log(f"File content (first 100 chars): {file_content[:100]}...")
+              prompt = f"""You are an AI code reviewer. Review the following changes in the context of the entire project:
 
-              prompt = f"You are an AI code reviewer. Review the following file: {file}\n\nHere's the content:\n{file_content}\n\nPlease provide a thorough code review, considering:\n1. Code quality and best practices\n2. Potential bugs or issues\n3. Performance considerations\n4. How well it fits with the overall project structure\n5. Suggestions for improvement\n\nFormat your review as markdown bullet points."
+              Project structure:
+              {project_structure}
+
+              README preview:
+              {readme_content[:500]}...
+
+              Pull Request:
+              Title: {pr_title}
+              Description: {pr_description}
+
+              File being reviewed: {filename}
+              Changes:
+              {patch}
+
+              Please provide a thorough code review of these changes, considering:
+              1. How well the changes fit with the overall project structure and purpose
+              2. Code quality and adherence to best practices
+              3. Potential bugs or issues introduced by these changes
+              4. Performance implications
+              5. Suggestions for improvement
+
+              Format your review as markdown bullet points, focusing specifically on the changes made in this file."""
 
               log("Sending request to Anthropic API")
               try:
@@ -150,16 +176,25 @@ jobs:
                       log(f"Response content: {e.response.text}")
                   continue
 
-              log("Posting comment to GitHub")
-              comment_body = f"**AI Review for `{file}`:**\n\n{review}"
-              encoded_comment = base64.b64encode(comment_body.encode()).decode()
-              comment_command = f'echo {encoded_comment} | base64 -d | gh pr comment {pr_number} --body-file -'
-              result = run_command(comment_command)
+              log("Posting review comment on GitHub")
+              review_command = f'''
+              gh api repos/{repo}/pulls/{pr_number}/reviews \
+                --method POST \
+                --field event=COMMENT \
+                --field body="{review}" \
+                --field comments:='''
+              review_command += '''[{
+                "path": "''' + filename + '''",
+                "position": ''' + str(file['changes']) + ''',
+                "body": "''' + review.replace('"', '\\"').replace('\n', '\\n') + '''"
+              }]
+              '''
+              result = run_command(review_command)
               if result is not None:
-                  log("Comment posted successfully")
+                  log("Review comment posted successfully")
                   log(f"GitHub response: {result}")
               else:
-                  log("Error posting comment to GitHub")
+                  log("Error posting review comment to GitHub")
 
-          log("AI Code Review completed")
+          log("Contextual AI Code Review completed")
           EOF
