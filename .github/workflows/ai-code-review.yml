@@ -40,6 +40,7 @@ jobs:
           import os
           import sys
           import subprocess
+          import json
           from anthropic import Anthropic
 
           def log(message):
@@ -74,6 +75,7 @@ jobs:
               log(f"API connection test successful. Response: {response.content[0].text}")
           except Exception as e:
               log(f"Error testing API connection: {str(e)}")
+              sys.exit(1)
 
           # Define changed_files
           changed_files = "${{ steps.changed-files.outputs.all_changed_files }}".split()
@@ -104,6 +106,11 @@ jobs:
                   log("Received response from Anthropic API")
                   log(f"Response content (first 100 chars): {response.content[0].text[:100]}...")
                   review = response.content[0].text
+          
+                  if not review.strip():
+                      log("Error: Received empty review from Anthropic API")
+                      continue
+          
               except Exception as e:
                   log(f"Error calling Anthropic API: {str(e)}")
                   log(f"Error type: {type(e).__name__}")
@@ -113,8 +120,8 @@ jobs:
                   continue
 
               log("Posting comment to GitHub")
-              comment_body = f"**AI Review for `{file}`:**\n\n{review}"
-              comment_command = f'gh pr comment {pr_number} --body "{comment_body}"'
+              comment_body = json.dumps(f"**AI Review for `{file}`:**\n\n{review}")
+              comment_command = f'gh pr comment {pr_number} --body {comment_body}'
               result = run_command(comment_command)
               if result:
                   log("Comment posted successfully")
