@@ -193,5 +193,5 @@ jobs:
               file_comments
           )
 
-          log("AI Code Review with Precise Line Comments completed")
+          log("AI Code Review completed")
           EOF
