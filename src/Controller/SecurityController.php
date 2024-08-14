@@ -23,6 +23,8 @@ final class SecurityController extends AbstractController
             'last_username' => $lastUsername,
             'error' => $error,
         ]);
+
+        dump('another test');
     }
 
     #[Route(path: '/logout', name: 'app_logout')]
