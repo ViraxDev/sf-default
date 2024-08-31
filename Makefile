@@ -1,8 +1,8 @@
 .PHONY: composer-install create-network help install new-project php-cs-fixer phpstan restart root start stop
 .DEFAULT_GOAL := help
 
-DOCKER_ROOT=docker exec -t --user root $(shell docker ps --filter name=sf-default-symfony_app -q)
-DOCKER_ROOT_I=docker exec -ti --user root $(shell docker ps --filter name=sf-default-symfony_app -q)
+DOCKER_ROOT=docker exec -t --user root $(shell docker ps --filter name=symfony_app -q)
+DOCKER_ROOT_I=docker exec -ti --user root $(shell docker ps --filter name=symfony_app -q)
 ARGS=10 2
 GREEN = \033[32m
 YELLOW = \033[33m
@@ -32,6 +32,11 @@ new-project:
 	git config --unset-all branch.initial_commit.remote; \
 	sed -i.bak 's/APP_NAME=.*/APP_NAME='"$$project_name"'/' .env && rm .env.bak; \
 	sed -i.bak 's/DATABASE_NAME=.*/DATABASE_NAME='"$$db_name"'/' .env && rm .env.bak; \
+	sed -i.bak 's/symfony_app/'"$$project_name"'_app/g' docker-compose.yml && rm docker-compose.yml.bak; \
+	sed -i.bak 's/app-network/'"$$project_name"'_network/g' docker-compose.yml && rm docker-compose.yml.bak; \
+	sed -i.bak 's/sf-default/'"$$project_name"'/g' Makefile && rm Makefile.bak; \
+	sed -i.bak 's/symfony_app/'"$$project_name"'_app/g' Makefile && rm Makefile.bak; \
+	sed -i.bak 's/symfony_app/'"$$project_name"'_app/g' infrastructure/nginx/conf.d/default.conf && rm infrastructure/nginx/conf.d/default.conf.bak; \
 	if [ -n "$$git_url" ]; then \
 		git remote add origin $$git_url; \
 		echo "Git repository initialized and remote origin set to $$git_url"; \
