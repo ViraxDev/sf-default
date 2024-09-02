@@ -7,6 +7,7 @@ ARGS=10 2
 GREEN = \033[32m
 YELLOW = \033[33m
 BLUE = \033[34m
+RESET=\033[0m
 
 root: ## Enter container as root
 	$(DOCKER_ROOT_I) bash
