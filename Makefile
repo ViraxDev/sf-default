@@ -17,7 +17,7 @@ composer-install: ## Run composer install
 check-code: phpstan php-cs-fixer ## Fixes code style issues and analyze PHP code for errors
 
 new-project:
-	@echo "$(BLUE)$(RESET)"
+	@echo "$(BLUE)"
 	@read -p "New project name: " project_name; \
 	read -p "Database name: " db_name; \
 	read -p "Git repository URL (leave blank to skip): " git_url; \
@@ -47,9 +47,9 @@ new-project:
 	git config user.email "$$git_user_email"; \
 	git add .; \
 	git commit -m "Initial commit"; \
-	echo "$(GREEN)New project '$$project_name' successfully created and Git initialized.$(RESET)"; \
-	echo "$(YELLOW)Don't forget to check and adjust other parameters in the .env file if necessary.$(RESET)"; \
-	echo "$(YELLOW)You may want to push your initial commit to the remote repository.$(RESET)"
+	echo "$(GREEN)New project '$$project_name' successfully created and Git initialized."; \
+	echo "$(YELLOW)Don't forget to check and adjust other parameters in the .env file if necessary."; \
+	echo "$(YELLOW)You may want to push your initial commit to the remote repository."
 
 create-network: ## Create network
 	-docker network create app-network
