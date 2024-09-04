@@ -41,8 +41,5 @@ RUN apk add --no-cache bash jq
 
 RUN echo "alias sf='bin/console'" >> ~/.bashrc
 
-# Copy the crontab file into the container
-COPY ./infrastructure/php/crontab /etc/cron.d/crontab
-
 #the default folder where the app will be
 WORKDIR /var/task
