@@ -33,65 +33,45 @@
                 </div>
                 <div class="card-body bg-light">
                     {% set extra_class = formSubmitted ? ' was-validated' : '' %}
-                    {{ form_start(form, {'attr': {'class': 'row g-3 needs-validation' ~ extra_class}}) }}
+                    {{ form_start(form, {'attr': {'class': 'row g-3 needs-validation' ~ extra_class, 'novalidate': 'novalidate'}}) }}
+                    <div class="col-lg-6">
+                        {{ form_label(form.firstName, 'first_name'|trans, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
+                        {% include 'includes/_form_error.html.twig' with {'errors': form.firstName.vars.errors} %}
+                    </div>
+                    <div class="col-lg-6">
+                        {{ form_label(form.lastName, 'last_name'|trans, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
+                        {% include 'includes/_form_error.html.twig' with {'errors': form.lastName.vars.errors} %}
+                    </div>
+                    <div class="col-lg-12">
                         <div class="col-lg-6">
-                            {{ form_label(form.firstName, null, {
-                                'label': 'first_name'|trans,
-                                'class': 'form-label'
-                            }) }}
-
-                            {{ form_widget(form.firstName, {'attr': {'class': 'form-control', 'value': field_value(form.firstName)}}) }}
+                            {{ form_label(form.email, 'email'|trans, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                            {% include 'includes/_form_error.html.twig' with {'errors': form.email.vars.errors} %}
                         </div>
-                        <div class="col-lg-6">
-                            {{ form_label(form.lastName, null, {
-                                'label': 'last_name'|trans,
-                                'class': 'form-label'
-                            }) }}
+                    </div>
+                    <div class="col-lg-6">
+                        {{ form_label(form.password.plainPassword.first, 'password'|trans, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.password.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
+                        {% include 'includes/_form_error.html.twig' with {'errors': form.password.plainPassword.first.vars.errors} %}
+                    </div>
+                    <div class="col-lg-6">
+                        {{ form_label(form.password.plainPassword.second, 'password.repeat'|trans, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.password.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
+                        {% include 'includes/_form_error.html.twig' with {'errors': form.password.plainPassword.second.vars.errors} %}
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <button class="btn btn-primary" type="submit">{{ 'update'|trans }}</button>
+                    </div>
 
-                            {{ form_widget(form.lastName, {'attr': {'class': 'form-control', 'value': field_value(form.lastName)}}) }}
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="col-lg-6">
-                                {{ form_label(form.email, null, {
-                                    'label': 'email'|trans,
-                                    'class': 'form-label'
-                                }) }}
-
-                                {{ form_widget(form.email, {'attr': {'class': 'form-control', 'value': field_value(form.email)}}) }}
-                            </div>
-                        </div>
-                        <div class="col-lg-6 position-relative">
-                            {{ form_label(form.password.plainPassword.first, null, {
-                                'label': 'password'|trans,
-                                'class': 'form-label'
-                            }) }}
-
-                            {{ form_widget(form.password.plainPassword.first, {'attr': {'class': 'form-control', 'value': field_value(form.password.plainPassword.first)}}) }}
-
-                            {% for error in field_errors(form.password.plainPassword.first) %}
-                                <div class="invalid-tooltip">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="col-lg-6">
-                            {{ form_label(form.password.plainPassword.second, null, {
-                                'label': 'password.repeat'|trans,
-                                'class': 'form-label'
-                            }) }}
-
-                            {{ form_widget(form.password.plainPassword.second, {'attr': {'class': 'form-control', 'value': field_value(form.password.plainPassword.second)}}) }}
-
-                            {% for error in field_errors(form.password.plainPassword.second) %}
-                                <div class="invalid-tooltip">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="col-12 d-flex justify-content-end">
-                            <button class="btn btn-primary" type="submit">{{ 'update'|trans }}</button>
-                        </div>
-
-                    {{ form_errors(form) }}
-
-                    {{ form_rest(form) }}
                     {{ form_end(form) }}
+
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success mt-3">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

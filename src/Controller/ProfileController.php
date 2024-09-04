@@ -23,6 +23,8 @@ final class ProfileController extends AbstractController
         if (($formSubmitted = $form->isSubmitted()) && $form->isValid()) {
             $this->entityManager->flush();
 
+            $this->addFlash('success', $this->translator->trans('profile.updated'));
+
             return $this->redirectToRoute('app_profile');
         }
 

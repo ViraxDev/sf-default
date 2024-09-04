@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Twig\Runtime\User;
 
+use App\Service\FileManager\FileManagerInterface;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -14,7 +15,8 @@ final readonly class ExtensionRuntime implements RuntimeExtensionInterface
     public function __construct(
         private Security $security,
         #[Autowire(service: 'twig.extension.assets')]
-        private AssetExtension $assetExtension
+        private AssetExtension $assetExtension,
+        private FileManagerInterface $fileManager,
     ) {
     }
 
@@ -29,8 +31,9 @@ final readonly class ExtensionRuntime implements RuntimeExtensionInterface
 
         $getter = sprintf('get%s', ucfirst($type));
 
+        // User updated his picture
         if (method_exists($user, $getter) && !empty($value = $user->{$getter}())) {
-            return $this->assetExtension->getAssetUrl(sprintf('img/uploads/%s', $value));
+            return sprintf('%s/%s', $this->fileManager->getUploadDir(), $value);
         }
 
         return $this->assetExtension->getAssetUrl($defaultPicture);

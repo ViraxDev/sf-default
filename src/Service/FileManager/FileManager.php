@@ -29,6 +29,11 @@ final readonly class FileManager implements FileManagerInterface
         return $fileName;
     }
 
+    public function getUploadDir(): string
+    {
+        return $this->uploadDirectory;
+    }
+
     public function removeFile(string $file): void
     {
         $this->filesystem->remove($this->uploadDirectory.'/'.$file);
