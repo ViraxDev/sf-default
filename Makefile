@@ -1,4 +1,4 @@
-.PHONY: composer-install create-network help install new-project php-cs-fixer phpstan restart root start stop
+.PHONY: bash composer-install create-network help install new-project php-cs-fixer phpstan restart start stop
 .DEFAULT_GOAL := help
 
 DOCKER_ROOT=docker exec -t --user root $(shell docker ps --filter name=symfony_app -q)
@@ -9,7 +9,7 @@ YELLOW = \033[33m
 BLUE = \033[34m
 RESET=\033[0m
 
-root: ## Enter container as root
+bash: ## Enter container as root
 	$(DOCKER_ROOT_I) bash
 
 composer-install: ## Run composer install
